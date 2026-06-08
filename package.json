@@ -1,0 +1,19 @@
+{
+  "name": "edumatch",
+  "private": true,
+  "version": "0.1.0",
+  "description": "EduMatch monorepo for student teammate and project matching.",
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace @edumatch/frontend run dev",
+    "dev:backend": "npm --workspace @edumatch/backend run dev",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

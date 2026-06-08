@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: edumatch-postgres
+    environment:
+      POSTGRES_DB: edumatch
+      POSTGRES_USER: edumatch
+      POSTGRES_PASSWORD: edumatch
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+
+  redis:
+    image: redis:7-alpine
+    container_name: edumatch-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
