@@ -1,0 +1,904 @@
+basePath: /api
+definitions:
+  auth.AuthResponse:
+    properties:
+      tokens:
+        $ref: '#/definitions/auth.TokenPair'
+      user:
+        $ref: '#/definitions/user.CurrentUserResponse'
+    type: object
+  auth.LoginRequest:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.LogoutRequest:
+    properties:
+      refresh_token:
+        minLength: 20
+        type: string
+    required:
+    - refresh_token
+    type: object
+  auth.RefreshRequest:
+    properties:
+      refresh_token:
+        minLength: 20
+        type: string
+    required:
+    - refresh_token
+    type: object
+  auth.RegisterRequest:
+    properties:
+      avatar_url:
+        maxLength: 1000
+        type: string
+      bio:
+        maxLength: 1200
+        type: string
+      course:
+        maximum: 8
+        minimum: 1
+        type: integer
+      email:
+        maxLength: 255
+        type: string
+      full_name:
+        maxLength: 160
+        minLength: 2
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+      skill_ids:
+        items:
+          type: string
+        maxItems: 20
+        type: array
+      university:
+        maxLength: 180
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    type: object
+  auth.TokenPair:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+      refresh_token:
+        type: string
+      refresh_token_expires_at:
+        type: string
+      token_type:
+        type: string
+    type: object
+  project.CreateProjectRequest:
+    properties:
+      deadline:
+        type: string
+      description:
+        maxLength: 5000
+        minLength: 10
+        type: string
+      required_skill_ids:
+        items:
+          type: string
+        maxItems: 20
+        type: array
+      status:
+        enum:
+        - draft
+        - open
+        - closed
+        - archived
+        type: string
+      title:
+        maxLength: 160
+        minLength: 3
+        type: string
+    required:
+    - description
+    - title
+    type: object
+  project.ProjectListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/project.ProjectResponse'
+        type: array
+    type: object
+  project.ProjectResponse:
+    properties:
+      created_at:
+        type: string
+      deadline:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      owner:
+        $ref: '#/definitions/user.PublicUserResponse'
+      owner_id:
+        type: string
+      participants_count:
+        type: integer
+      required_skills:
+        items:
+          $ref: '#/definitions/skill.Skill'
+        type: array
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  project.UpdateProjectRequest:
+    properties:
+      deadline:
+        type: string
+      description:
+        maxLength: 5000
+        minLength: 10
+        type: string
+      required_skill_ids:
+        items:
+          type: string
+        maxItems: 20
+        type: array
+      status:
+        enum:
+        - draft
+        - open
+        - closed
+        - archived
+        type: string
+      title:
+        maxLength: 160
+        minLength: 3
+        type: string
+    type: object
+  shared.ErrorDetail:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+  shared.ErrorResponse:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/shared.ErrorDetail'
+        type: array
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  shared.SuccessResponse:
+    properties:
+      data: {}
+      success:
+        type: boolean
+    type: object
+  skill.ListSkillsResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/skill.Skill'
+        type: array
+    type: object
+  skill.Skill:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  user.CurrentUserResponse:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      course:
+        type: integer
+      created_at:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      rating:
+        type: number
+      skills:
+        items:
+          $ref: '#/definitions/skill.Skill'
+        type: array
+      university:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  user.PublicUserResponse:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      course:
+        type: integer
+      created_at:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      rating:
+        type: number
+      skills:
+        items:
+          $ref: '#/definitions/skill.Skill'
+        type: array
+      university:
+        type: string
+    type: object
+  user.UpdateProfileRequest:
+    properties:
+      avatar_url:
+        maxLength: 1000
+        type: string
+      bio:
+        maxLength: 1200
+        type: string
+      course:
+        maximum: 8
+        minimum: 1
+        type: integer
+      full_name:
+        maxLength: 160
+        minLength: 2
+        type: string
+      university:
+        maxLength: 180
+        type: string
+    type: object
+  user.UpdateSkillsRequest:
+    properties:
+      skill_ids:
+        items:
+          type: string
+        maxItems: 20
+        type: array
+    required:
+    - skill_ids
+    type: object
+  user.UserListResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/user.PublicUserResponse'
+        type: array
+    type: object
+info:
+  contact: {}
+  description: Production-ready backend for the EduMatch educational project.
+  title: EduMatch API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.AuthResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      summary: Login user
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh token payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh token payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/auth.AuthResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      summary: Refresh JWT tokens
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Registration payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.CurrentUserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      summary: Register a user
+      tags:
+      - Auth
+  /projects:
+    get:
+      parameters:
+      - description: Search by title
+        in: query
+        name: query
+        type: string
+      - description: Comma-separated skill UUIDs
+        in: query
+        name: skills
+        type: string
+      - description: Project status
+        in: query
+        name: status
+        type: string
+      - description: 'Sort by created_at: asc or desc'
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      summary: Search projects
+      tags:
+      - Projects
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/project.CreateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a project
+      tags:
+      - Projects
+  /projects/{id}:
+    delete:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a project
+      tags:
+      - Projects
+    get:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      summary: Get project details
+      tags:
+      - Projects
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Project UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Project update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/project.UpdateProjectRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/project.ProjectResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a project
+      tags:
+      - Projects
+  /skills:
+    get:
+      description: Returns the full reference list of skills. The response is served
+        from Redis cache when available.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/skill.ListSkillsResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      summary: Get all skills
+      tags:
+      - Skills
+  /users:
+    get:
+      description: Search and filter public user profiles by skill, course, university,
+        rating, or text query.
+      parameters:
+      - description: Text search by full name
+        in: query
+        name: query
+        type: string
+      - description: Skill UUID
+        in: query
+        name: skill
+        type: string
+      - description: Course number
+        in: query
+        name: course
+        type: integer
+      - description: University name
+        in: query
+        name: university
+        type: string
+      - description: Minimum rating
+        in: query
+        name: rating
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.UserListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      summary: Search users
+      tags:
+      - Users
+  /users/{id}:
+    get:
+      parameters:
+      - description: User UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.PublicUserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      summary: Get public user profile
+      tags:
+      - Users
+  /users/me:
+    delete:
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete current user
+      tags:
+      - Users
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.CurrentUserResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Profile update
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.CurrentUserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update current user profile
+      tags:
+      - Users
+  /users/me/skills:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Skill IDs
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateSkillsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/shared.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.CurrentUserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/shared.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Replace current user skills
+      tags:
+      - Users
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

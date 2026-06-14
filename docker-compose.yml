@@ -1,4 +1,20 @@
 services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: edumatch-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
   postgres:
     image: postgres:16-alpine
     container_name: edumatch-postgres
@@ -6,17 +22,32 @@ services:
       POSTGRES_DB: edumatch
       POSTGRES_USER: edumatch
       POSTGRES_PASSWORD: edumatch
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edumatch -d edumatch"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     ports:
       - "5432:5432"
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
 
   redis:
     image: redis:7-alpine
     container_name: edumatch-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     ports:
       - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
 
 volumes:
   postgres_data:
+  redis_data:

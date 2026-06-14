@@ -7,3 +7,9 @@ dist/
 npm-debug.log*
 coverage/
 *.tsbuildinfo
+bin/
+tmp/
+*.exe
+*.dll
+*.so
+*.dylib
