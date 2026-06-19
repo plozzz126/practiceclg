@@ -86,21 +86,37 @@ docker compose up --build
 
 ### Вариант 2. Локальный запуск без Docker
 
+Нужно установить:
+
+- Node.js 20.9+ и npm (`22 LTS` рекомендуется)
+- Go 1.25+
+- PostgreSQL 16+
+- Redis 7+
+
 1. Поднимите PostgreSQL и Redis локально.
 2. Создайте `.env` на основе `.env.example`.
-3. Для локального запуска замените в `.env` хосты:
+3. Для локального запуска используйте такой `.env`:
 
 ```env
-DATABASE_URL=postgres://edumatch:edumatch@localhost:5432/edumatch?sslmode=disable
+NEXT_PUBLIC_API_URL=http://localhost:8080/api
+DATABASE_URL=postgres://practice:91020@localhost:5432/practice?sslmode=disable
 REDIS_URL=redis://localhost:6379/0
+JWT_ACCESS_SECRET=change-me-access-secret
+JWT_REFRESH_SECRET=change-me-refresh-secret
 ```
 
 4. Выполните:
 
 ```bash
-cd backend
-go mod tidy
-go run ./cmd/server
+npm install
+cd backend && go mod download
+npm run backend:run
+```
+
+5. В отдельном терминале запустите frontend:
+
+```bash
+npm run dev
 ```
 
 ## Переменные окружения
@@ -109,6 +125,7 @@ go run ./cmd/server
 
 - `APP_ENV` — окружение (`development`, `production`)
 - `PORT` — порт API
+- `NEXT_PUBLIC_API_URL` — адрес backend API для frontend
 - `DATABASE_URL` — строка подключения к PostgreSQL
 - `REDIS_URL` — строка подключения к Redis
 - `JWT_ACCESS_SECRET` — секрет access token
@@ -129,7 +146,7 @@ go run ./cmd/server
 cd backend
 go run github.com/golang-migrate/migrate/v4/cmd/migrate@v4.19.0 \
   -path migrations \
-  -database "postgres://edumatch:edumatch@localhost:5432/edumatch?sslmode=disable" up
+  -database "postgres://practice:91020@localhost:5432/practice?sslmode=disable" up
 ```
 
 При запуске через Docker миграции применяются автоматически в `backend/docker/start.sh`.

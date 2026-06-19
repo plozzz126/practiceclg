@@ -8,9 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "backend:run": "go run ./backend/cmd/server",
-    "backend:build": "go build ./backend/cmd/server",
-    "backend:swagger": "go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g backend/cmd/server/main.go -o backend/docs",
+    "backend:run": "cd backend && go run ./cmd/server",
+    "backend:build": "cd backend && go build ./cmd/server",
+    "backend:swagger": "cd backend && go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g cmd/server/main.go -o docs",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down"
   },

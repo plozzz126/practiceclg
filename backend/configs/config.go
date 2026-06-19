@@ -5,36 +5,40 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	AppEnv           string
-	Port             string
-	DatabaseURL      string
-	RedisURL         string
-	JWTAccessSecret  string
-	JWTRefreshSecret string
-	AccessTokenTTL   time.Duration
-	RefreshTokenTTL  time.Duration
-	SkillsCacheTTL   time.Duration
+	AppEnv             string
+	Port               string
+	DatabaseURL        string
+	RedisURL           string
+	CORSAllowedOrigins []string
+	JWTAccessSecret    string
+	JWTRefreshSecret   string
+	AccessTokenTTL     time.Duration
+	RefreshTokenTTL    time.Duration
+	SkillsCacheTTL     time.Duration
 }
 
 func Load() (Config, error) {
-	_ = godotenv.Load()
+	_ = godotenv.Load(".env")
+	_ = godotenv.Load("../.env")
 
 	cfg := Config{
-		AppEnv:           getEnv("APP_ENV", "development"),
-		Port:             getEnv("PORT", "8080"),
-		DatabaseURL:      os.Getenv("DATABASE_URL"),
-		RedisURL:         os.Getenv("REDIS_URL"),
-		JWTAccessSecret:  os.Getenv("JWT_ACCESS_SECRET"),
-		JWTRefreshSecret: os.Getenv("JWT_REFRESH_SECRET"),
-		AccessTokenTTL:   getDurationEnv("ACCESS_TOKEN_TTL", 15*time.Minute),
-		RefreshTokenTTL:  getDurationEnv("REFRESH_TOKEN_TTL", 7*24*time.Hour),
-		SkillsCacheTTL:   getDurationEnv("SKILLS_CACHE_TTL", time.Hour),
+		AppEnv:             getEnv("APP_ENV", "development"),
+		Port:               getEnv("PORT", "8080"),
+		DatabaseURL:        os.Getenv("DATABASE_URL"),
+		RedisURL:           os.Getenv("REDIS_URL"),
+		CORSAllowedOrigins: getCSVEnv("CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000", "http://127.0.0.1:3000"}),
+		JWTAccessSecret:    os.Getenv("JWT_ACCESS_SECRET"),
+		JWTRefreshSecret:   os.Getenv("JWT_REFRESH_SECRET"),
+		AccessTokenTTL:     getDurationEnv("ACCESS_TOKEN_TTL", 15*time.Minute),
+		RefreshTokenTTL:    getDurationEnv("REFRESH_TOKEN_TTL", 7*24*time.Hour),
+		SkillsCacheTTL:     getDurationEnv("SKILLS_CACHE_TTL", time.Hour),
 	}
 
 	switch {
@@ -75,4 +79,26 @@ func getDurationEnv(key string, fallback time.Duration) time.Duration {
 	}
 
 	return duration
+}
+
+func getCSVEnv(key string, fallback []string) []string {
+	value := os.Getenv(key)
+	if strings.TrimSpace(value) == "" {
+		return fallback
+	}
+
+	items := strings.Split(value, ",")
+	result := make([]string, 0, len(items))
+	for _, item := range items {
+		trimmed := strings.TrimSpace(item)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+
+	if len(result) == 0 {
+		return fallback
+	}
+
+	return result
 }

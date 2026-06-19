@@ -11,6 +11,9 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-practice}:${POSTGRES_PASSWORD:-91020}@postgres:5432/${POSTGRES_DB:-practice}?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
     ports:
       - "8080:8080"
     restart: unless-stopped
@@ -19,11 +22,11 @@ services:
     image: postgres:16-alpine
     container_name: edumatch-postgres
     environment:
-      POSTGRES_DB: edumatch
-      POSTGRES_USER: edumatch
-      POSTGRES_PASSWORD: edumatch
+      POSTGRES_DB: ${POSTGRES_DB:-practice}
+      POSTGRES_USER: ${POSTGRES_USER:-practice}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-91020}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U edumatch -d edumatch"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 10

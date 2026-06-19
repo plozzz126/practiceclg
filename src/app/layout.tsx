@@ -19,6 +19,9 @@ const displayFont = Space_Grotesk({
 export const metadata: Metadata = {
   title: "EduMatch",
   description: "Student platform for finding teammates and project collaborators.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -27,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <body className={`${bodyFont.variable} ${displayFont.variable}`}>
         <Providers>
           <AppShell>{children}</AppShell>

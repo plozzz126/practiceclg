@@ -1,4 +1,4 @@
-// File: C:\Users\rpan9\Documents\projects\SessionClg\practice\src\app\layout.tsx
+// File: /home/ploz/Documents/codevs/college/practicell/practiceclg/src/app/layout.tsx
 import * as entry from '../../../src/app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

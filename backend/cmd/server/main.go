@@ -87,6 +87,7 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(middleware.NewCORSMiddleware(cfg.CORSAllowedOrigins))
 
 	router.GET("/health", func(c *gin.Context) {
 		shared.RespondSuccess(c, http.StatusOK, gin.H{
