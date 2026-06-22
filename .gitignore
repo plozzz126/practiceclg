@@ -9,6 +9,7 @@ npm-debug.log*
 coverage/
 *.tsbuildinfo
 bin/
+backend/server
 tmp/
 *.exe
 *.dll
