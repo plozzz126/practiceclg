@@ -1,4 +1,4 @@
-package auth
+﻿package auth
 
 import (
 	"context"
@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/edumatch/backend/internal/shared"
-	"github.com/edumatch/backend/internal/user"
-	jwtpkg "github.com/edumatch/backend/pkg/jwt"
+	"github.com/devlink/backend/internal/shared"
+	"github.com/devlink/backend/internal/user"
+	jwtpkg "github.com/devlink/backend/pkg/jwt"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	redislib "github.com/redis/go-redis/v9"

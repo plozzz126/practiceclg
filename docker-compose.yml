@@ -1,29 +1,51 @@
 services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: devlink-frontend
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      NEXT_PUBLIC_API_URL: ${DOCKER_NEXT_PUBLIC_API_URL:-http://localhost:8080/api}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: edumatch-backend
+    container_name: devlink-backend
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    env_file:
-      - .env
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      PORT: ${PORT:-8080}
+      DATABASE_URL: ${DOCKER_DATABASE_URL:-postgres://devlink:devlink@postgres:5432/devlink?sslmode=disable}
+      REDIS_URL: ${DOCKER_REDIS_URL:-redis://redis:6379/0}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-access-secret}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change-me-refresh-secret}
+      ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL:-15m}
+      REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-168h}
+      SKILLS_CACHE_TTL: ${SKILLS_CACHE_TTL:-1h}
     ports:
       - "8080:8080"
     restart: unless-stopped
 
   postgres:
     image: postgres:16-alpine
-    container_name: edumatch-postgres
+    container_name: devlink-postgres
     environment:
-      POSTGRES_DB: edumatch
-      POSTGRES_USER: edumatch
-      POSTGRES_PASSWORD: edumatch
+      POSTGRES_DB: devlink
+      POSTGRES_USER: devlink
+      POSTGRES_PASSWORD: devlink
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U edumatch -d edumatch"]
+      test: ["CMD-SHELL", "pg_isready -U devlink -d devlink"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -35,7 +57,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: edumatch-redis
+    container_name: devlink-redis
     command: ["redis-server", "--appendonly", "yes"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]

@@ -44,11 +44,11 @@ export function RegisterForm() {
     onSuccess: (response) => {
       setSession(response.tokens);
       setCurrentUser(response.user);
-      toast.success("Your account is ready. Let's finish the profile.");
+      toast.success("Аккаунт создан. Давай заполним профиль.");
       router.push(routes.profile);
     },
     onError: (error) => {
-      toast.error(getApiErrorMessage(error, "We could not create the account."));
+      toast.error(getApiErrorMessage(error, "Не удалось создать аккаунт."));
     },
   });
 
@@ -57,16 +57,16 @@ export function RegisterForm() {
   return (
     <Card className="mx-auto w-full max-w-xl">
       <CardHeader className="space-y-3">
-        <CardTitle className="text-3xl">Create account</CardTitle>
-        <p className="text-sm leading-6 text-slate-600">
-          Start with your name, email and password. Skills and profile details can be added right after sign up.
+        <CardTitle className="text-3xl">Регистрация</CardTitle>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Начни с имени, почты и пароля. Навыки и детали профиля можно добавить сразу после регистрации.
         </p>
       </CardHeader>
       <CardContent>
         <form className="space-y-5" onSubmit={onSubmit}>
           <div>
-            <Label htmlFor="full_name">Full name</Label>
-            <Input id="full_name" placeholder="Aruzhan Sarsen" {...form.register("full_name")} />
+            <Label htmlFor="full_name">Полное имя</Label>
+            <Input id="full_name" placeholder="Аружан Сарсен" {...form.register("full_name")} />
             <FormError message={form.formState.errors.full_name?.message} />
           </div>
 
@@ -77,19 +77,19 @@ export function RegisterForm() {
           </div>
 
           <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="Minimum 8 characters" {...form.register("password")} />
+            <Label htmlFor="password">Пароль</Label>
+            <Input id="password" type="password" placeholder="Минимум 8 символов" {...form.register("password")} />
             <FormError message={form.formState.errors.password?.message} />
           </div>
 
           <Button className="w-full" type="submit" disabled={registerMutation.isPending}>
-            {registerMutation.isPending ? "Creating account..." : "Create account"}
+            {registerMutation.isPending ? "Создаем аккаунт..." : "Создать аккаунт"}
           </Button>
 
-          <p className="text-center text-sm text-slate-500">
-            Already registered?{" "}
-            <Link className="font-medium text-teal-700 hover:text-teal-800" href={routes.login}>
-              Log in
+          <p className="text-center text-sm text-muted-foreground">
+            Уже есть аккаунт?{" "}
+            <Link className="font-medium text-tone-primary hover:opacity-80" href={routes.login}>
+              Войти
             </Link>
           </p>
         </form>

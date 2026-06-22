@@ -37,7 +37,7 @@ export function SkillPicker({
               "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition",
               selected
                 ? "border-teal-600 bg-teal-600 text-white shadow-soft"
-                : "border-slate-200 bg-white/80 text-slate-700 hover:border-teal-300 hover:text-teal-700",
+                : "border-border bg-card/80 text-muted-foreground hover:border-teal-400 hover:text-foreground",
             )}
           >
             {selected ? <Check className="h-4 w-4" /> : null}

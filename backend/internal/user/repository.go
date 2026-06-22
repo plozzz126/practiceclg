@@ -1,11 +1,11 @@
-package user
+﻿package user
 
 import (
 	"context"
 	"fmt"
 	"strings"
 
-	"github.com/edumatch/backend/internal/skill"
+	"github.com/devlink/backend/internal/skill"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"

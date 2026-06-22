@@ -1,12 +1,12 @@
-package auth
+﻿package auth
 
 import (
 	"log/slog"
 	"net/http"
 
-	"github.com/edumatch/backend/internal/middleware"
-	"github.com/edumatch/backend/internal/shared"
-	"github.com/edumatch/backend/internal/user"
+	"github.com/devlink/backend/internal/middleware"
+	"github.com/devlink/backend/internal/shared"
+	"github.com/devlink/backend/internal/user"
 	"github.com/gin-gonic/gin"
 )
 

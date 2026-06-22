@@ -70,42 +70,42 @@ export function DashboardView() {
   }, [currentUser, matchesQuery.data?.items, projectsQuery.data?.items]);
 
   return (
-    <AuthGuard description="Log in to keep your profile, projects and recommendations together.">
+    <AuthGuard description="Войдите, чтобы хранить в одном месте профиль, проекты и персональные рекомендации.">
       <section className="container py-10 md:py-14">
         <div className="space-y-8">
           <PageIntro
-            eyebrow="Dashboard"
-            title={currentUser ? `Welcome back, ${currentUser.full_name.split(" ")[0]}` : "Your workspace"}
-            description="Track your own projects, discover matching opportunities and keep your profile ready for new teammates."
+            eyebrow="Дашборд"
+            title={currentUser ? `С возвращением, ${currentUser.full_name.split(" ")[0]}` : "Твое рабочее пространство"}
+            description="Следи за своими проектами, находи подходящие возможности и держи профиль готовым к новым заявкам."
             actions={<CreateProjectDialog />}
           />
 
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
               <CardContent className="p-6">
-                <p className="text-sm font-medium text-slate-500">My projects</p>
-                <p className="mt-3 font-display text-4xl font-semibold text-slate-950">
+                <p className="text-sm font-medium text-muted-foreground">Мои проекты</p>
+                <p className="mt-3 font-display text-4xl font-semibold text-foreground">
                   {dashboard.myProjects.length}
                 </p>
-                <p className="mt-2 text-sm text-slate-600">Projects you created or currently own.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Проекты, которые ты создал или ведешь сейчас.</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-6">
-                <p className="text-sm font-medium text-slate-500">Recommended now</p>
-                <p className="mt-3 font-display text-4xl font-semibold text-slate-950">
+                <p className="text-sm font-medium text-muted-foreground">Подходят сейчас</p>
+                <p className="mt-3 font-display text-4xl font-semibold text-foreground">
                   {dashboard.recommendedProjects.length}
                 </p>
-                <p className="mt-2 text-sm text-slate-600">Open projects aligned with your skills.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Открытые проекты, близкие к твоим навыкам.</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-6">
-                <p className="text-sm font-medium text-slate-500">Matching people</p>
-                <p className="mt-3 font-display text-4xl font-semibold text-slate-950">
+                <p className="text-sm font-medium text-muted-foreground">Подходящие люди</p>
+                <p className="mt-3 font-display text-4xl font-semibold text-foreground">
                   {dashboard.matchingUsers.length}
                 </p>
-                <p className="mt-2 text-sm text-slate-600">Students sharing at least one key skill.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Студенты, с которыми совпадает хотя бы один ключевой навык.</p>
               </CardContent>
             </Card>
           </div>
@@ -114,12 +114,12 @@ export function DashboardView() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="font-display text-2xl font-semibold text-slate-950">My projects</h2>
-                  <p className="mt-1 text-sm text-slate-500">Projects you can continue shaping this week.</p>
+                  <h2 className="font-display text-2xl font-semibold text-foreground">Мои проекты</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">То, что можно продолжить и усилить уже на этой неделе.</p>
                 </div>
                 <Button asChild variant="ghost">
                   <Link href={routes.projects}>
-                    View all
+                    Все проекты
                     <ArrowRight />
                   </Link>
                 </Button>
@@ -133,8 +133,8 @@ export function DashboardView() {
                 </div>
               ) : (
                 <EmptyState
-                  title="No projects yet"
-                  description="Create your first project to start attracting teammates from the catalog."
+                  title="Проектов пока нет"
+                  description="Создай первый проект, чтобы начать собирать команду из каталога."
                   icon={<FolderKanban className="h-6 w-6" />}
                   action={<CreateProjectDialog />}
                 />
@@ -146,7 +146,7 @@ export function DashboardView() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-2xl">
                     <Sparkles className="h-5 w-5 text-amber-500" />
-                    Recommended projects
+                    Рекомендованные проекты
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -155,8 +155,8 @@ export function DashboardView() {
                   ) : (
                     <EmptyState
                       className="min-h-52"
-                      title="Recommendations will appear here"
-                      description="Add more skills to your profile or explore the full project catalog."
+                      title="Рекомендации появятся здесь"
+                      description="Добавь больше навыков в профиль или открой весь каталог проектов."
                     />
                   )}
                 </CardContent>
@@ -165,8 +165,8 @@ export function DashboardView() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-2xl">
-                    <UserRoundSearch className="h-5 w-5 text-teal-600" />
-                    Teammates matching your skills
+                    <UserRoundSearch className="h-5 w-5 text-tone-primary" />
+                    Тиммейты по твоим навыкам
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -175,8 +175,8 @@ export function DashboardView() {
                   ) : (
                     <EmptyState
                       className="min-h-52"
-                      title="No direct matches yet"
-                      description="Set your core skills in the profile and EduMatch will surface stronger teammate suggestions."
+                      title="Прямых совпадений пока нет"
+                      description="Заполни ключевые навыки в профиле, и DevLink покажет более точных тиммейтов."
                     />
                   )}
                 </CardContent>

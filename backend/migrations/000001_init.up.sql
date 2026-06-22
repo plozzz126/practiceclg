@@ -45,6 +45,9 @@ CREATE TABLE projects (
   description text NOT NULL,
   deadline date,
   status project_status NOT NULL DEFAULT 'open',
+  direction varchar(40) NOT NULL DEFAULT 'web',
+  team_size integer NOT NULL DEFAULT 4 CHECK (team_size BETWEEN 1 AND 12),
+  required_roles text[] NOT NULL DEFAULT '{}'::text[],
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -84,6 +87,7 @@ CREATE TABLE messages (
 
 CREATE INDEX idx_users_university_course ON users (university, course);
 CREATE INDEX idx_projects_status_deadline ON projects (status, deadline);
+CREATE INDEX idx_projects_direction ON projects (direction);
 CREATE INDEX idx_projects_title_search ON projects USING gin (to_tsvector('simple', title));
 CREATE INDEX idx_join_requests_user_status ON join_requests (user_id, status);
 CREATE INDEX idx_messages_project_created ON messages (project_id, created_at);
@@ -91,14 +95,47 @@ CREATE INDEX idx_messages_project_created ON messages (project_id, created_at);
 INSERT INTO skills (name) VALUES
   ('React'),
   ('TypeScript'),
+  ('JavaScript'),
+  ('Next.js'),
+  ('Vue'),
+  ('Angular'),
   ('Node.js'),
+  ('NestJS'),
   ('Express'),
   ('Go'),
   ('Python'),
+  ('Django'),
+  ('FastAPI'),
   ('Java'),
+  ('Spring Boot'),
+  ('C#'),
+  ('ASP.NET'),
   ('C++'),
+  ('Rust'),
   ('PostgreSQL'),
+  ('MySQL'),
+  ('MongoDB'),
   ('Redis'),
+  ('Docker'),
+  ('Kubernetes'),
+  ('AWS'),
+  ('Git'),
+  ('GitHub Actions'),
   ('Figma'),
-  ('UI/UX')
+  ('UI/UX'),
+  ('Tailwind CSS'),
+  ('React Native'),
+  ('Flutter'),
+  ('Swift'),
+  ('Kotlin'),
+  ('TensorFlow'),
+  ('PyTorch'),
+  ('Data Science'),
+  ('Cybersecurity'),
+  ('Linux'),
+  ('SIEM'),
+  ('Burp Suite'),
+  ('CTF'),
+  ('Blockchain'),
+  ('Solidity')
 ON CONFLICT (name) DO NOTHING;

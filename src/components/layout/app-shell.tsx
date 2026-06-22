@@ -1,16 +1,23 @@
-import { MainFooter } from "@/components/layout/main-footer";
+"use client";
+
 import { MainHeader } from "@/components/layout/main-header";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { routes } from "@/constants/routes";
+import { cn } from "@/lib/utils/cn";
+import { usePathname } from "next/navigation";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const hideChrome = pathname === routes.home || pathname === routes.login || pathname === routes.register;
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
-      <div className="pointer-events-none absolute inset-0 bg-hero-radial" />
-      <div className="pointer-events-none absolute inset-0 bg-hero-grid bg-[size:48px_48px] opacity-40" />
-      <div className="relative flex min-h-screen flex-col">
-        <MainHeader />
-        <main className="flex-1">{children}</main>
-        <MainFooter />
-      </div>
+    <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
+      <div className="pointer-events-none fixed inset-0 surface-grid" />
+      <ThemeToggle />
+      <MainHeader hidden={hideChrome} />
+      <main className={cn("relative min-h-screen", !hideChrome && "pb-24 md:pb-0 md:pl-[248px]")}>
+        {children}
+      </main>
     </div>
   );
 }

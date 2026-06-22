@@ -1,16 +1,17 @@
 {
-  "name": "edumatch-frontend",
+  "name": "devlink-frontend",
   "private": true,
   "version": "0.3.0",
-  "description": "EduMatch week 3 frontend on Next.js",
+  "description": "DevLink week 3 frontend on Next.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "backend:run": "go run ./backend/cmd/server",
-    "backend:build": "go build ./backend/cmd/server",
-    "backend:swagger": "go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g backend/cmd/server/main.go -o backend/docs",
+    "backend:run": "go -C backend run ./cmd/server",
+    "backend:build": "go -C backend build ./cmd/server",
+    "backend:swagger": "go -C backend run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g cmd/server/main.go -o docs",
+    "docker:backend": "docker compose up --build backend postgres redis",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down"
   },

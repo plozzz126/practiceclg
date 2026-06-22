@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -15,6 +16,7 @@ type Config struct {
 	Port             string
 	DatabaseURL      string
 	RedisURL         string
+	CORSAllowedOrigins []string
 	JWTAccessSecret  string
 	JWTRefreshSecret string
 	AccessTokenTTL   time.Duration
@@ -26,15 +28,16 @@ func Load() (Config, error) {
 	_ = godotenv.Load()
 
 	cfg := Config{
-		AppEnv:           getEnv("APP_ENV", "development"),
-		Port:             getEnv("PORT", "8080"),
-		DatabaseURL:      os.Getenv("DATABASE_URL"),
-		RedisURL:         os.Getenv("REDIS_URL"),
-		JWTAccessSecret:  os.Getenv("JWT_ACCESS_SECRET"),
-		JWTRefreshSecret: os.Getenv("JWT_REFRESH_SECRET"),
-		AccessTokenTTL:   getDurationEnv("ACCESS_TOKEN_TTL", 15*time.Minute),
-		RefreshTokenTTL:  getDurationEnv("REFRESH_TOKEN_TTL", 7*24*time.Hour),
-		SkillsCacheTTL:   getDurationEnv("SKILLS_CACHE_TTL", time.Hour),
+		AppEnv:             getEnv("APP_ENV", "development"),
+		Port:               getEnv("PORT", "8080"),
+		DatabaseURL:        os.Getenv("DATABASE_URL"),
+		RedisURL:           os.Getenv("REDIS_URL"),
+		CORSAllowedOrigins: getListEnv("CORS_ALLOWED_ORIGINS", []string{"http://localhost:3000", "http://127.0.0.1:3000"}),
+		JWTAccessSecret:    os.Getenv("JWT_ACCESS_SECRET"),
+		JWTRefreshSecret:   os.Getenv("JWT_REFRESH_SECRET"),
+		AccessTokenTTL:     getDurationEnv("ACCESS_TOKEN_TTL", 15*time.Minute),
+		RefreshTokenTTL:    getDurationEnv("REFRESH_TOKEN_TTL", 7*24*time.Hour),
+		SkillsCacheTTL:     getDurationEnv("SKILLS_CACHE_TTL", time.Hour),
 	}
 
 	switch {
@@ -75,4 +78,27 @@ func getDurationEnv(key string, fallback time.Duration) time.Duration {
 	}
 
 	return duration
+}
+
+func getListEnv(key string, fallback []string) []string {
+	value := strings.TrimSpace(os.Getenv(key))
+	if value == "" {
+		return fallback
+	}
+
+	parts := strings.Split(value, ",")
+	items := make([]string, 0, len(parts))
+
+	for _, part := range parts {
+		item := strings.TrimSpace(part)
+		if item != "" {
+			items = append(items, item)
+		}
+	}
+
+	if len(items) == 0 {
+		return fallback
+	}
+
+	return items
 }

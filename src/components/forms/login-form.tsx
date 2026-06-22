@@ -37,11 +37,11 @@ export function LoginForm() {
     onSuccess: (response) => {
       setSession(response.tokens);
       setCurrentUser(response.user);
-      toast.success("Welcome back to EduMatch.");
+      toast.success("С возвращением в DevLink.");
       router.push(routes.dashboard);
     },
     onError: (error) => {
-      toast.error(getApiErrorMessage(error, "We could not sign you in."));
+      toast.error(getApiErrorMessage(error, "Не удалось войти в аккаунт."));
     },
   });
 
@@ -50,9 +50,9 @@ export function LoginForm() {
   return (
     <Card className="mx-auto w-full max-w-xl">
       <CardHeader className="space-y-3">
-        <CardTitle className="text-3xl">Log in</CardTitle>
-        <p className="text-sm leading-6 text-slate-600">
-          Continue to your dashboard, saved profile and active project search.
+        <CardTitle className="text-3xl">Вход</CardTitle>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Продолжай работу с проектами, сохраненным профилем и поиском команды.
         </p>
       </CardHeader>
       <CardContent>
@@ -64,19 +64,19 @@ export function LoginForm() {
           </div>
 
           <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="Minimum 8 characters" {...form.register("password")} />
+            <Label htmlFor="password">Пароль</Label>
+            <Input id="password" type="password" placeholder="Минимум 8 символов" {...form.register("password")} />
             <FormError message={form.formState.errors.password?.message} />
           </div>
 
           <Button className="w-full" type="submit" disabled={loginMutation.isPending}>
-            {loginMutation.isPending ? "Signing in..." : "Sign in"}
+            {loginMutation.isPending ? "Входим..." : "Войти"}
           </Button>
 
-          <p className="text-center text-sm text-slate-500">
-            No account yet?{" "}
-            <Link className="font-medium text-teal-700 hover:text-teal-800" href={routes.register}>
-              Create one
+          <p className="text-center text-sm text-muted-foreground">
+            Еще нет аккаунта?{" "}
+            <Link className="font-medium text-tone-primary hover:opacity-80" href={routes.register}>
+              Создать
             </Link>
           </p>
         </form>

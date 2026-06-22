@@ -1,12 +1,12 @@
-{
+﻿{
     "schemes": [
         "http",
         "https"
     ],
     "swagger": "2.0",
     "info": {
-        "description": "Production-ready backend for the EduMatch educational project.",
-        "title": "EduMatch API",
+        "description": "Production-ready backend for the DevLink educational project.",
+        "title": "DevLink API",
         "contact": {},
         "version": "1.0"
     },

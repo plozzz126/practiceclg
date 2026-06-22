@@ -1,4 +1,4 @@
-package user
+﻿package user
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/edumatch/backend/internal/shared"
-	"github.com/edumatch/backend/internal/skill"
+	"github.com/devlink/backend/internal/shared"
+	"github.com/devlink/backend/internal/skill"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )

@@ -1,4 +1,5 @@
 export const storageKeys = {
-  auth: "edumatch-auth",
-  user: "edumatch-user",
+  auth: "devlink-auth",
+  user: "devlink-user",
+  theme: "devlink-theme",
 } as const;

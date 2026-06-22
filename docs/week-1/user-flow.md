@@ -1,81 +1,38 @@
-# User Flow EduMatch
+# DevLink User Flow
 
-## Основные роли
+## Main user roles
 
-- Гость: может просматривать общую информацию, но не может подавать заявки.
-- Студент: заполняет профиль, ищет проекты и тиммейтов, отправляет заявки.
-- Создатель проекта: создает проект, управляет заявками, общается с командой.
+- Guest: can browse public surfaces
+- Student: can build a profile, search, and apply
+- Project owner: can create projects and review join requests
 
-## Flow 1: Регистрация и заполнение профиля
+## Flow 1: sign up and profile
 
-```mermaid
-flowchart TD
-  A[Открытие EduMatch] --> B[Sign Up]
-  B --> C[Email, пароль, имя]
-  C --> D[Подтверждение регистрации]
-  D --> E[Создание профиля]
-  E --> F[Университет и курс]
-  F --> G[Выбор навыков]
-  G --> H[Описание о себе]
-  H --> I[Дашборд студента]
-```
+1. Open DevLink
+2. Register
+3. Add profile details
+4. Select skills
+5. Land on dashboard
 
-## Flow 2: Поиск проекта и подача заявки
+## Flow 2: discover and apply
 
-```mermaid
-flowchart TD
-  A[Дашборд] --> B[Каталог проектов]
-  B --> C[Поиск по названию или стеку]
-  C --> D[Фильтр по навыкам и дедлайну]
-  D --> E[Просмотр карточки проекта]
-  E --> F[Страница проекта]
-  F --> G[Отправить заявку]
-  G --> H[Статус pending]
-  H --> I[Создатель принимает или отклоняет]
-  I --> J[Проект появляется в Моих проектах]
-```
+1. Open project catalog
+2. Search by stack, direction, or keyword
+3. Review project card
+4. Open project detail
+5. Submit join request with motivation
 
-## Flow 3: Создание проекта
+## Flow 3: owner review
 
-```mermaid
-flowchart TD
-  A[Дашборд] --> B[Создать проект]
-  B --> C[Название и описание]
-  C --> D[Требуемые навыки]
-  D --> E[Дедлайн и формат]
-  E --> F[Публикация проекта]
-  F --> G[Проект доступен в поиске]
-  G --> H[Получение заявок]
-  H --> I[Управление участниками]
-```
+1. Open project detail
+2. Review incoming request
+3. Check profile, skills, rating, and fit
+4. Accept or reject
+5. Update team state
 
-## Flow 4: Поиск тиммейта
+## Flow 4: team collaboration
 
-```mermaid
-flowchart TD
-  A[Раздел Тиммейты] --> B[Фильтр по навыкам]
-  B --> C[Фильтр по курсу и университету]
-  C --> D[Сортировка по рейтингу]
-  D --> E[Просмотр профиля]
-  E --> F[Пригласить в проект]
-```
-
-## Flow 5: Чат проекта
-
-```mermaid
-flowchart TD
-  A[Мои проекты] --> B[Открыть проект]
-  B --> C[Команда проекта]
-  C --> D[Чат проекта]
-  D --> E[Сообщение через WebSocket]
-  E --> F[Мгновенное отображение у участников]
-```
-
-## Приоритет MVP
-
-1. Регистрация, логин, refresh token, выход.
-2. Профиль студента с навыками.
-3. Создание и поиск проектов.
-4. Заявки в проекты.
-5. Дашборд с проектами и заявками.
-6. WebSocket-чат внутри проекта.
+1. Open project workspace
+2. Review tasks and deadlines
+3. Use project chat
+4. Track progress to delivery

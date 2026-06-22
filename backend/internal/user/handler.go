@@ -1,11 +1,11 @@
-package user
+﻿package user
 
 import (
 	"log/slog"
 	"net/http"
 
-	"github.com/edumatch/backend/internal/middleware"
-	"github.com/edumatch/backend/internal/shared"
+	"github.com/devlink/backend/internal/middleware"
+	"github.com/devlink/backend/internal/shared"
 	"github.com/gin-gonic/gin"
 )
 

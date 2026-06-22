@@ -1,6 +1,6 @@
-package auth
+﻿package auth
 
-import "github.com/edumatch/backend/internal/user"
+import "github.com/devlink/backend/internal/user"
 
 type RegisterRequest struct {
 	Email      string   `json:"email" validate:"required,email,max=255"`

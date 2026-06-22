@@ -1,4 +1,5 @@
 import type { ProjectStatus } from "@/constants/project-status";
+import type { ProjectDirection } from "@/constants/project-directions";
 import type { Skill } from "@/types/skill";
 import type { PublicUser } from "@/types/user";
 
@@ -9,6 +10,9 @@ export interface Project {
   description: string;
   deadline?: string | null;
   status: ProjectStatus;
+  direction: ProjectDirection;
+  team_size: number;
+  required_roles: string[];
   created_at: string;
   updated_at: string;
   owner: PublicUser;
@@ -24,7 +28,8 @@ export interface ProjectFilters {
   query?: string;
   skills?: string;
   status?: ProjectStatus | "";
-  sort?: "asc" | "desc";
+  direction?: ProjectDirection | "";
+  sort?: "asc" | "desc" | "deadline";
 }
 
 export interface CreateProjectPayload {
@@ -32,6 +37,9 @@ export interface CreateProjectPayload {
   description: string;
   deadline?: string;
   status?: ProjectStatus;
+  direction?: ProjectDirection;
+  team_size?: number;
+  required_roles?: string[];
   required_skill_ids?: string[];
 }
 
@@ -40,5 +48,8 @@ export interface UpdateProjectPayload {
   description?: string;
   deadline?: string;
   status?: ProjectStatus;
+  direction?: ProjectDirection;
+  team_size?: number;
+  required_roles?: string[];
   required_skill_ids?: string[];
 }

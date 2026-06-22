@@ -60,10 +60,10 @@ export function ProfileForm({ currentUser }: { currentUser: CurrentUser }) {
     },
     onSuccess: (response) => {
       setCurrentUser(response);
-      toast.success("Profile updated.");
+      toast.success("Профиль обновлен.");
     },
     onError: (error) => {
-      toast.error(getApiErrorMessage(error, "We could not save your profile."));
+      toast.error(getApiErrorMessage(error, "Не удалось сохранить профиль."));
     },
   });
 
@@ -73,34 +73,34 @@ export function ProfileForm({ currentUser }: { currentUser: CurrentUser }) {
   return (
     <Card>
       <CardHeader className="space-y-3">
-        <CardTitle className="text-3xl">Profile setup</CardTitle>
-        <p className="text-sm leading-6 text-slate-600">
-          Skills, short bio and education details shape recommendations across projects and teammates.
+        <CardTitle className="text-3xl">Профиль</CardTitle>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Навыки, короткое био и данные об учебе влияют на рекомендации по проектам и тиммейтам.
         </p>
       </CardHeader>
       <CardContent>
         <form className="space-y-6" onSubmit={onSubmit}>
           <div className="grid gap-5 md:grid-cols-2">
             <div>
-              <Label htmlFor="full_name">Full name</Label>
+              <Label htmlFor="full_name">Полное имя</Label>
               <Input id="full_name" {...form.register("full_name")} />
               <FormError message={form.formState.errors.full_name?.message} />
             </div>
 
             <div>
-              <Label htmlFor="avatar_url">Avatar URL</Label>
+              <Label htmlFor="avatar_url">Ссылка на аватар</Label>
               <Input id="avatar_url" placeholder="https://..." {...form.register("avatar_url")} />
               <FormError message={form.formState.errors.avatar_url?.message} />
             </div>
 
             <div>
-              <Label htmlFor="university">University</Label>
+              <Label htmlFor="university">Университет</Label>
               <Input id="university" placeholder="Astana IT University" {...form.register("university")} />
               <FormError message={form.formState.errors.university?.message} />
             </div>
 
             <div>
-              <Label htmlFor="course">Course</Label>
+              <Label htmlFor="course">Курс</Label>
               <Input
                 id="course"
                 type="number"
@@ -115,20 +115,20 @@ export function ProfileForm({ currentUser }: { currentUser: CurrentUser }) {
           </div>
 
           <div>
-            <Label htmlFor="bio">About you</Label>
+            <Label htmlFor="bio">О себе</Label>
             <Textarea
               id="bio"
-              placeholder="Tell teammates what you are building, learning or looking for."
+              placeholder="Расскажи, что ты делаешь, изучаешь и какую команду ищешь."
               {...form.register("bio")}
             />
             <FormError message={form.formState.errors.bio?.message} />
           </div>
 
           <div className="space-y-3">
-            <Label>Skills</Label>
-            <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-4">
+            <Label>Навыки</Label>
+            <div className="rounded-[8px] border border-border bg-muted/60 p-4">
               {skillsLoading && !skills.length ? (
-                <p className="text-sm text-slate-500">Loading skills catalog...</p>
+                <p className="text-sm text-muted-foreground">Загружаем каталог навыков...</p>
               ) : (
                 <SkillPicker
                   skills={skills}
@@ -141,7 +141,7 @@ export function ProfileForm({ currentUser }: { currentUser: CurrentUser }) {
           </div>
 
           <Button type="submit" disabled={updateMutation.isPending}>
-            {updateMutation.isPending ? "Saving profile..." : "Save profile"}
+            {updateMutation.isPending ? "Сохраняем профиль..." : "Сохранить профиль"}
           </Button>
         </form>
       </CardContent>

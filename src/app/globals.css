@@ -4,26 +4,62 @@
 
 @layer base {
   :root {
-    --background: 36 33% 95%;
-    --foreground: 215 23% 17%;
-    --card: 0 0% 100%;
-    --card-foreground: 215 23% 17%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 23% 17%;
-    --primary: 175 78% 26%;
+    --background: 220 24% 6%;
+    --foreground: 180 20% 94%;
+    --card: 220 22% 10%;
+    --card-foreground: 180 20% 94%;
+    --popover: 220 22% 10%;
+    --popover-foreground: 180 20% 94%;
+    --primary: 174 78% 30%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 32 35% 91%;
-    --secondary-foreground: 215 23% 17%;
-    --muted: 36 20% 92%;
-    --muted-foreground: 215 11% 44%;
-    --accent: 46 92% 58%;
-    --accent-foreground: 215 23% 17%;
+    --secondary: 220 16% 15%;
+    --secondary-foreground: 180 20% 94%;
+    --muted: 220 16% 14%;
+    --muted-foreground: 215 15% 67%;
+    --accent: 260 86% 65%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 18 86% 41%;
     --destructive-foreground: 0 0% 100%;
-    --border: 34 21% 83%;
-    --input: 34 21% 83%;
-    --ring: 175 78% 26%;
-    --radius: 1rem;
+    --border: 218 18% 20%;
+    --input: 218 18% 20%;
+    --ring: 174 78% 34%;
+    --tone-primary: 174 72% 58%;
+    --tone-primary-foreground: 174 84% 78%;
+    --tone-warning: 38 92% 60%;
+    --tone-warning-foreground: 38 95% 76%;
+    --shell-glow: rgba(15, 23, 42, 0.18);
+    --shell-grid: rgba(148, 163, 184, 0.06);
+    --radius: 0.5rem;
+    color-scheme: dark;
+  }
+
+  html[data-theme="light"] {
+    --background: 210 20% 98%;
+    --foreground: 222 30% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 30% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 30% 14%;
+    --primary: 173 76% 34%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 24% 95%;
+    --secondary-foreground: 222 30% 18%;
+    --muted: 210 24% 96%;
+    --muted-foreground: 220 12% 42%;
+    --accent: 260 78% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 10 78% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 18% 88%;
+    --input: 220 18% 88%;
+    --ring: 173 76% 34%;
+    --tone-primary: 173 76% 36%;
+    --tone-primary-foreground: 173 78% 28%;
+    --tone-warning: 34 82% 46%;
+    --tone-warning-foreground: 28 90% 30%;
+    --shell-glow: rgba(13, 148, 136, 0.06);
+    --shell-grid: rgba(15, 23, 42, 0.045);
+    color-scheme: light;
   }
 
   * {
@@ -58,5 +94,33 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .surface-grid {
+    background-image:
+      linear-gradient(180deg, var(--shell-glow), transparent 34%),
+      linear-gradient(to right, var(--shell-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--shell-grid) 1px, transparent 1px);
+    background-size: 100% 100%, 48px 48px, 48px 48px;
+  }
+
+  .tone-primary-soft {
+    border-color: hsl(var(--tone-primary) / 0.26);
+    background-color: hsl(var(--tone-primary) / 0.12);
+    color: hsl(var(--tone-primary-foreground));
+  }
+
+  .tone-warning-soft {
+    border-color: hsl(var(--tone-warning) / 0.28);
+    background-color: hsl(var(--tone-warning) / 0.12);
+    color: hsl(var(--tone-warning-foreground));
+  }
+
+  .text-tone-primary {
+    color: hsl(var(--tone-primary-foreground));
+  }
+
+  .text-tone-warning {
+    color: hsl(var(--tone-warning-foreground));
   }
 }

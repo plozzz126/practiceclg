@@ -1,4 +1,4 @@
-package main
+﻿package main
 
 import (
 	"context"
@@ -6,26 +6,26 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/edumatch/backend/configs"
-	_ "github.com/edumatch/backend/docs"
-	"github.com/edumatch/backend/internal/auth"
-	"github.com/edumatch/backend/internal/middleware"
-	"github.com/edumatch/backend/internal/project"
-	"github.com/edumatch/backend/internal/shared"
-	"github.com/edumatch/backend/internal/skill"
-	"github.com/edumatch/backend/internal/user"
-	jwtpkg "github.com/edumatch/backend/pkg/jwt"
-	"github.com/edumatch/backend/pkg/logger"
-	postgrespkg "github.com/edumatch/backend/pkg/postgres"
-	redispkg "github.com/edumatch/backend/pkg/redis"
+	"github.com/devlink/backend/configs"
+	_ "github.com/devlink/backend/docs"
+	"github.com/devlink/backend/internal/auth"
+	"github.com/devlink/backend/internal/middleware"
+	"github.com/devlink/backend/internal/project"
+	"github.com/devlink/backend/internal/shared"
+	"github.com/devlink/backend/internal/skill"
+	"github.com/devlink/backend/internal/user"
+	jwtpkg "github.com/devlink/backend/pkg/jwt"
+	"github.com/devlink/backend/pkg/logger"
+	postgrespkg "github.com/devlink/backend/pkg/postgres"
+	redispkg "github.com/devlink/backend/pkg/redis"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title EduMatch API
+// @title DevLink API
 // @version 1.0
-// @description Production-ready backend for the EduMatch educational project.
+// @description Production-ready backend for the DevLink educational project.
 // @BasePath /api
 // @schemes http https
 // @securityDefinitions.apikey BearerAuth
@@ -87,11 +87,12 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Use(middleware.NewCORSMiddleware(cfg.CORSAllowedOrigins))
 
 	router.GET("/health", func(c *gin.Context) {
 		shared.RespondSuccess(c, http.StatusOK, gin.H{
 			"status":  "ok",
-			"service": "edumatch-backend",
+			"service": "devlink-backend",
 		})
 	})
 

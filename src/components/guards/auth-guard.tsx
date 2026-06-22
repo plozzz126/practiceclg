@@ -12,8 +12,8 @@ import { useUserStore } from "@/store/user-store";
 
 export function AuthGuard({
   children,
-  title = "Sign in to continue",
-  description = "This area is available for authenticated students only.",
+  title = "Войдите, чтобы продолжить",
+  description = "Этот раздел доступен только авторизованным студентам.",
 }: {
   children: React.ReactNode;
   title?: string;
@@ -27,8 +27,8 @@ export function AuthGuard({
   if (!mounted || !isHydrated || ((accessToken || hasValidRefreshToken()) && !currentUser)) {
     return (
       <Card>
-        <CardContent className="flex min-h-64 items-center justify-center p-6 text-sm text-slate-500">
-          Loading your workspace...
+        <CardContent className="flex min-h-64 items-center justify-center p-6 text-sm text-muted-foreground">
+          Загружаем рабочее пространство...
         </CardContent>
       </Card>
     );
@@ -38,19 +38,19 @@ export function AuthGuard({
     return (
       <Card>
         <CardContent className="flex min-h-72 flex-col items-center justify-center gap-5 p-6 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
             <LockKeyhole className="h-6 w-6" />
           </div>
           <div className="space-y-2">
-            <h2 className="font-display text-2xl font-semibold text-slate-950">{title}</h2>
-            <p className="max-w-md text-sm leading-6 text-slate-600">{description}</p>
+            <h2 className="font-display text-2xl font-semibold text-foreground">{title}</h2>
+            <p className="max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button asChild>
-              <Link href={routes.login}>Log in</Link>
+              <Link href={routes.login}>Войти</Link>
             </Button>
             <Button asChild variant="secondary">
-              <Link href={routes.register}>Create account</Link>
+              <Link href={routes.register}>Регистрация</Link>
             </Button>
           </div>
         </CardContent>

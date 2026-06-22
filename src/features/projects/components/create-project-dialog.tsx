@@ -31,16 +31,19 @@ export function CreateProjectDialog() {
         description: values.description,
         deadline: values.deadline || undefined,
         status: values.status,
+        direction: values.direction,
+        team_size: values.team_size,
+        required_roles: values.required_roles,
         required_skill_ids: values.required_skill_ids,
       }),
     onSuccess: () => {
-      toast.success("Project created.");
+      toast.success("Проект создан.");
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
     },
     onError: (error) => {
-      toast.error(getApiErrorMessage(error, "We could not create the project."));
+      toast.error(getApiErrorMessage(error, "Не удалось создать проект."));
     },
   });
 
@@ -49,20 +52,20 @@ export function CreateProjectDialog() {
       <DialogTrigger asChild>
         <Button>
           <Plus />
-          Create project
+          Создать проект
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create a new project</DialogTitle>
+          <DialogTitle>Новый проект</DialogTitle>
           <DialogDescription>
-            Add the core idea, current status, deadline and required skills so teammates can find you.
+            Добавь идею, статус, дедлайн и нужные навыки, чтобы подходящие тиммейты быстрее тебя нашли.
           </DialogDescription>
         </DialogHeader>
         <ProjectForm
           onSubmit={(values) => createMutation.mutate(values)}
           isSubmitting={createMutation.isPending}
-          submitLabel="Publish project"
+          submitLabel="Опубликовать проект"
         />
       </DialogContent>
     </Dialog>

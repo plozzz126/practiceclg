@@ -1,4 +1,4 @@
-package project
+﻿package project
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/edumatch/backend/internal/skill"
-	"github.com/edumatch/backend/internal/user"
+	"github.com/devlink/backend/internal/skill"
+	"github.com/devlink/backend/internal/user"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -28,6 +28,9 @@ type CreateParams struct {
 	Description      string
 	Deadline         *time.Time
 	Status           string
+	Direction        string
+	TeamSize         int
+	RequiredRoles    []string
 	RequiredSkillIDs []string
 }
 
@@ -37,6 +40,10 @@ type UpdateParams struct {
 	Deadline         *time.Time
 	ClearDeadline    bool
 	Status           *string
+	Direction        *string
+	TeamSize         *int
+	RequiredRoles    []string
+	ReplaceRoles     bool
 	RequiredSkillIDs []string
 	ReplaceSkills    bool
 }
@@ -64,10 +71,10 @@ func (r *repository) Create(ctx context.Context, params CreateParams) (*Detail, 
 
 	var projectID uuid.UUID
 	err = tx.QueryRow(ctx, `
-		INSERT INTO projects (owner_id, title, description, deadline, status)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO projects (owner_id, title, description, deadline, status, direction, team_size, required_roles)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8::text[])
 		RETURNING id
-	`, params.OwnerID, params.Title, params.Description, params.Deadline, params.Status).Scan(&projectID)
+	`, params.OwnerID, params.Title, params.Description, params.Deadline, params.Status, params.Direction, params.TeamSize, params.RequiredRoles).Scan(&projectID)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +99,7 @@ func (r *repository) Create(ctx context.Context, params CreateParams) (*Detail, 
 
 func (r *repository) List(ctx context.Context, filters Filters) ([]Detail, error) {
 	query := `
-		SELECT DISTINCT p.id, p.owner_id, p.title, p.description, p.deadline, p.status, p.created_at, p.updated_at
+		SELECT DISTINCT p.id, p.owner_id, p.title, p.description, p.deadline, p.status, p.direction, p.team_size, p.required_roles, p.created_at, p.updated_at
 		FROM projects p
 	`
 
@@ -111,12 +118,28 @@ func (r *repository) List(ctx context.Context, filters Filters) ([]Detail, error
 
 	if filters.Query != "" {
 		args = append(args, "%"+filters.Query+"%")
-		where = append(where, fmt.Sprintf("p.title ILIKE $%d", len(args)))
+		where = append(where, fmt.Sprintf(`(
+			p.title ILIKE $%d OR
+			p.description ILIKE $%d OR
+			p.direction ILIKE $%d OR
+			array_to_string(p.required_roles, ' ') ILIKE $%d OR
+			EXISTS (
+				SELECT 1
+				FROM project_required_skills prs_query
+				INNER JOIN skills s_query ON s_query.id = prs_query.skill_id
+				WHERE prs_query.project_id = p.id AND s_query.name ILIKE $%d
+			)
+		)`, len(args), len(args), len(args), len(args), len(args)))
 	}
 
 	if filters.Status != "" {
 		args = append(args, filters.Status)
 		where = append(where, fmt.Sprintf("p.status = $%d", len(args)))
+	}
+
+	if filters.Direction != "" {
+		args = append(args, filters.Direction)
+		where = append(where, fmt.Sprintf("p.direction = $%d", len(args)))
 	}
 
 	if len(where) > 0 {
@@ -127,7 +150,11 @@ func (r *repository) List(ctx context.Context, filters Filters) ([]Detail, error
 	if strings.EqualFold(filters.Sort, "asc") {
 		sortOrder = "ASC"
 	}
-	query += " ORDER BY p.created_at " + sortOrder
+	if strings.EqualFold(filters.Sort, "deadline") {
+		query += " ORDER BY p.deadline ASC NULLS LAST, p.created_at DESC"
+	} else {
+		query += " ORDER BY p.created_at " + sortOrder
+	}
 
 	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
@@ -184,7 +211,7 @@ func (r *repository) List(ctx context.Context, filters Filters) ([]Detail, error
 
 func (r *repository) GetByID(ctx context.Context, id uuid.UUID) (*Detail, error) {
 	row := r.db.QueryRow(ctx, `
-		SELECT id, owner_id, title, description, deadline, status, created_at, updated_at
+		SELECT id, owner_id, title, description, deadline, status, direction, team_size, required_roles, created_at, updated_at
 		FROM projects
 		WHERE id = $1
 	`, id)
@@ -249,6 +276,21 @@ func (r *repository) Update(ctx context.Context, id uuid.UUID, params UpdatePara
 	if params.Status != nil {
 		args = append(args, *params.Status)
 		setClauses = append(setClauses, fmt.Sprintf("status = $%d", len(args)))
+	}
+
+	if params.Direction != nil {
+		args = append(args, *params.Direction)
+		setClauses = append(setClauses, fmt.Sprintf("direction = $%d", len(args)))
+	}
+
+	if params.TeamSize != nil {
+		args = append(args, *params.TeamSize)
+		setClauses = append(setClauses, fmt.Sprintf("team_size = $%d", len(args)))
+	}
+
+	if params.ReplaceRoles {
+		args = append(args, params.RequiredRoles)
+		setClauses = append(setClauses, fmt.Sprintf("required_roles = $%d::text[]", len(args)))
 	}
 
 	if len(setClauses) > 0 {
@@ -491,6 +533,9 @@ func scanProject(rows pgx.Rows) (Project, error) {
 		&project.Description,
 		&project.Deadline,
 		&project.Status,
+		&project.Direction,
+		&project.TeamSize,
+		&project.RequiredRoles,
 		&project.CreatedAt,
 		&project.UpdatedAt,
 	)
@@ -506,6 +551,9 @@ func scanProjectRow(row pgx.Row) (Project, error) {
 		&project.Description,
 		&project.Deadline,
 		&project.Status,
+		&project.Direction,
+		&project.TeamSize,
+		&project.RequiredRoles,
 		&project.CreatedAt,
 		&project.UpdatedAt,
 	)

@@ -1,33 +1,38 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, MenuSquare, UserRound } from "lucide-react";
+import { FolderKanban, LayoutDashboard, LogOut, UserRound, UsersRound } from "lucide-react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { Logo } from "@/components/layout/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { navigationLinks, routes } from "@/constants/routes";
+import { routes } from "@/constants/routes";
 import { authApi } from "@/lib/api/auth";
+import { forceLogout } from "@/lib/api/client";
 import { cn } from "@/lib/utils/cn";
 import { getInitials } from "@/lib/utils/helpers";
-import { forceLogout } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
 import { useUserStore } from "@/store/user-store";
 
-export function MainHeader() {
+const navItems = [
+  { href: routes.dashboard, label: "Дашборд", icon: LayoutDashboard },
+  { href: routes.projects, label: "Проекты", icon: FolderKanban },
+  { href: routes.users, label: "Тиммейты", icon: UsersRound },
+  { href: routes.profile, label: "Профиль", icon: UserRound },
+] as const;
+
+export function MainHeader({ hidden = false }: { hidden?: boolean }) {
   const router = useRouter();
+  const pathname = usePathname();
   const accessToken = useAuthStore((state) => state.accessToken);
   const refreshToken = useAuthStore((state) => state.refreshToken);
   const currentUser = useUserStore((state) => state.currentUser);
+
+  if (hidden) {
+    return null;
+  }
 
   const handleLogout = async () => {
     try {
@@ -35,83 +40,84 @@ export function MainHeader() {
         await authApi.logout(refreshToken);
       }
     } catch {
-      toast.error("We could not reach the session service, but you were signed out locally.");
+      toast.error("Сервис завершения сессии недоступен, но локальный выход уже выполнен.");
     } finally {
       forceLogout();
       router.push(routes.login);
     }
   };
 
+  const renderNavLink = (item: (typeof navItems)[number], compact = false) => {
+    const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+    const Icon = item.icon;
+
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={cn(
+          "group flex items-center gap-3 rounded-[8px] text-sm font-medium transition",
+          compact ? "min-w-16 flex-col gap-1 px-3 py-2 text-xs" : "px-4 py-3",
+          active
+            ? "tone-primary-soft border"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        )}
+      >
+        <Icon
+          className={cn(
+            "h-5 w-5",
+            active ? "text-tone-primary" : "text-muted-foreground group-hover:text-foreground",
+          )}
+        />
+        <span>{item.label}</span>
+      </Link>
+    );
+  };
+
   return (
-    <header className="sticky top-0 z-40 border-b border-white/50 bg-background/85 backdrop-blur-xl">
-      <div className="container flex h-20 items-center justify-between gap-4">
-        <div className="flex items-center gap-10">
-          <Logo />
-          <nav className="hidden items-center gap-2 md:flex">
-            {navigationLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-white/80 hover:text-slate-950",
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+    <>
+      <aside className="fixed left-4 top-4 z-40 hidden h-[calc(100vh-2rem)] w-[216px] flex-col rounded-[16px] border border-border bg-card/88 p-4 shadow-soft backdrop-blur-xl md:flex">
+        <Logo />
 
-        <div className="flex items-center gap-3">
-          <Link href={routes.projects} className="md:hidden">
-            <Button variant="ghost" size="icon" aria-label="Menu">
-              <MenuSquare />
-            </Button>
-          </Link>
+        <nav className="mt-10 grid gap-2">{navItems.map((item) => renderNavLink(item))}</nav>
 
+        <div className="mt-auto space-y-3 border-t border-border pt-4">
           {accessToken && currentUser ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-full border border-white/70 bg-white/70 px-2 py-2 shadow-sm transition hover:shadow-soft">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={currentUser.avatar_url ?? undefined} alt={currentUser.full_name} />
-                    <AvatarFallback>{getInitials(currentUser.full_name)}</AvatarFallback>
-                  </Avatar>
-                  <div className="hidden text-left sm:block">
-                    <p className="text-sm font-semibold text-slate-900">{currentUser.full_name}</p>
-                    <p className="text-xs text-slate-500">{currentUser.university || "Student profile"}</p>
-                  </div>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href={routes.dashboard}>Dashboard</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={routes.profile}>
-                    <UserRound className="mr-2 h-4 w-4" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" asChild>
-                <Link href={routes.login}>Log in</Link>
+            <>
+              <Link href={routes.profile} className="flex items-center gap-3 rounded-[8px] bg-muted/70 p-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={currentUser.avatar_url ?? undefined} alt={currentUser.full_name} />
+                  <AvatarFallback>{getInitials(currentUser.full_name)}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">{currentUser.full_name}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {currentUser.university || "Профиль студента"}
+                  </p>
+                </div>
+              </Link>
+              <Button variant="ghost" className="w-full justify-start" onClick={handleLogout}>
+                <LogOut />
+                Выйти
               </Button>
+            </>
+          ) : (
+            <div className="grid gap-2">
               <Button asChild>
-                <Link href={routes.register}>Get started</Link>
+                <Link href={routes.login}>Войти</Link>
+              </Button>
+              <Button asChild variant="secondary">
+                <Link href={routes.register}>Регистрация</Link>
               </Button>
             </div>
           )}
         </div>
-      </div>
-    </header>
+      </aside>
+
+      <nav className="fixed bottom-3 left-3 right-3 z-40 flex justify-between gap-1 rounded-[16px] border border-border bg-card/92 p-2 shadow-soft backdrop-blur-xl md:hidden">
+        {navItems.slice(0, 3).map((item) => renderNavLink(item, true))}
+        {renderNavLink(navItems[3], true)}
+      </nav>
+    </>
   );
 }

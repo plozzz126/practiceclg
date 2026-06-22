@@ -1,4 +1,4 @@
-package project
+﻿package project
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/edumatch/backend/internal/shared"
+	"github.com/devlink/backend/internal/shared"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -65,12 +65,25 @@ func (s *service) Create(ctx context.Context, ownerID uuid.UUID, request CreateP
 		status = StatusOpen
 	}
 
+	direction := request.Direction
+	if direction == "" {
+		direction = DirectionWeb
+	}
+
+	teamSize := request.TeamSize
+	if teamSize == 0 {
+		teamSize = 4
+	}
+
 	project, err := s.repo.Create(ctx, CreateParams{
 		OwnerID:          ownerID,
 		Title:            title,
 		Description:      description,
 		Deadline:         deadline,
 		Status:           status,
+		Direction:        direction,
+		TeamSize:         teamSize,
+		RequiredRoles:    normalizeRoleList(request.RequiredRoles),
 		RequiredSkillIDs: uniqueValues(request.RequiredSkillIDs),
 	})
 	if err != nil {
@@ -87,10 +100,11 @@ func (s *service) List(ctx context.Context, query ListProjectsQuery) ([]Detail, 
 	}
 
 	projects, err := s.repo.List(ctx, Filters{
-		Query:    strings.TrimSpace(query.Query),
-		Status:   strings.TrimSpace(query.Status),
-		Sort:     strings.TrimSpace(query.Sort),
-		SkillIDs: skillIDs,
+		Query:     strings.TrimSpace(query.Query),
+		Status:    strings.TrimSpace(query.Status),
+		Direction: strings.TrimSpace(query.Direction),
+		Sort:      strings.TrimSpace(query.Sort),
+		SkillIDs:  skillIDs,
 	})
 	if err != nil {
 		return nil, shared.WrapInternal(err, "Failed to load projects")
@@ -149,6 +163,10 @@ func (s *service) Update(ctx context.Context, actorID, projectID uuid.UUID, requ
 		Deadline:         deadline,
 		ClearDeadline:    clearDeadline,
 		Status:           normalizeOptional(request.Status),
+		Direction:        normalizeOptional(request.Direction),
+		TeamSize:         request.TeamSize,
+		RequiredRoles:    normalizeRoleList(request.RequiredRoles),
+		ReplaceRoles:     request.RequiredRoles != nil,
 		RequiredSkillIDs: uniqueValues(request.RequiredSkillIDs),
 		ReplaceSkills:    request.RequiredSkillIDs != nil,
 	})
@@ -229,6 +247,27 @@ func uniqueValues(values []string) []string {
 
 		seen[value] = struct{}{}
 		result = append(result, value)
+	}
+
+	return result
+}
+
+func normalizeRoleList(values []string) []string {
+	seen := make(map[string]struct{}, len(values))
+	result := make([]string, 0, len(values))
+	for _, value := range values {
+		trimmed := strings.TrimSpace(value)
+		if trimmed == "" {
+			continue
+		}
+
+		key := strings.ToLower(trimmed)
+		if _, exists := seen[key]; exists {
+			continue
+		}
+
+		seen[key] = struct{}{}
+		result = append(result, trimmed)
 	}
 
 	return result

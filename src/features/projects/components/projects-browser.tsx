@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { projectDirections, type ProjectDirection } from "@/constants/project-directions";
 import { projectStatusOptions } from "@/constants/project-status";
 import { queryKeys } from "@/constants/query-keys";
 import { useSkillsCatalog } from "@/lib/hooks/use-skills-catalog";
@@ -27,6 +28,22 @@ import { useDebouncedValue } from "@/lib/hooks/use-debounced-value";
 import { projectsApi } from "@/lib/api/projects";
 import { useAuthStore } from "@/store/auth-store";
 import type { ProjectStatus } from "@/constants/project-status";
+import type { Skill } from "@/types/skill";
+
+const popularTechnologies = [
+  "React",
+  "Next.js",
+  "TypeScript",
+  "Node.js",
+  "Python",
+  "Go",
+  "PostgreSQL",
+  "Docker",
+  "Figma",
+  "Cybersecurity",
+  "CTF",
+  "TensorFlow",
+];
 
 export function ProjectsBrowser() {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -34,7 +51,8 @@ export function ProjectsBrowser() {
 
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"all" | ProjectStatus>("all");
-  const [sort, setSort] = useState<"desc" | "asc">("desc");
+  const [direction, setDirection] = useState<"all" | ProjectDirection>("all");
+  const [sort, setSort] = useState<"desc" | "asc" | "deadline">("desc");
   const [selectedSkillIds, setSelectedSkillIds] = useState<string[]>([]);
 
   const debouncedQuery = useDebouncedValue(query);
@@ -44,11 +62,26 @@ export function ProjectsBrowser() {
     () => ({
       query: debouncedQuery || undefined,
       status: status === "all" ? undefined : status,
+      direction: direction === "all" ? undefined : direction,
       sort,
       skills: skillParam || undefined,
     }),
-    [debouncedQuery, skillParam, sort, status],
+    [debouncedQuery, direction, skillParam, sort, status],
   );
+
+  const popularSkillButtons = useMemo(
+    () =>
+      popularTechnologies
+        .map((name) => skills.find((skill) => skill.name.toLowerCase() === name.toLowerCase()))
+        .filter(Boolean) as Skill[],
+    [skills],
+  );
+
+  const toggleSkill = (skillId: string) => {
+    setSelectedSkillIds((current) =>
+      current.includes(skillId) ? current.filter((id) => id !== skillId) : [...current, skillId],
+    );
+  };
 
   const projectsQuery = useQuery({
     queryKey: queryKeys.projects(params),
@@ -59,37 +92,37 @@ export function ProjectsBrowser() {
     <section className="container py-10 md:py-14">
       <div className="space-y-8">
         <PageIntro
-          eyebrow="Projects"
-          title="Search projects by stack, timing and readiness."
-          description="Use the filters below to find active student projects that match your skills and current workload."
+          eyebrow="Проекты"
+          title="Ищи проекты по стеку, срокам и готовности команды."
+          description="Используй фильтры, чтобы находить активные студенческие проекты под свои навыки и текущую загрузку."
           actions={accessToken ? <CreateProjectDialog /> : undefined}
         />
 
         <Card>
           <CardContent className="space-y-5 p-6">
-            <div className="flex items-center gap-2 text-sm font-medium uppercase tracking-[0.24em] text-slate-400">
+            <div className="flex items-center gap-2 text-sm font-medium uppercase tracking-[0.24em] text-muted-foreground">
               <ListFilter className="h-4 w-4" />
-              Filters
+              Фильтры
             </div>
-            <div className="grid gap-5 lg:grid-cols-[1.1fr_0.45fr_0.45fr]">
+            <div className="grid gap-5 xl:grid-cols-[1.1fr_0.45fr_0.45fr_0.45fr]">
               <div>
-                <Label htmlFor="project-search">Search by title</Label>
+                <Label htmlFor="project-search">Поиск</Label>
                 <Input
                   id="project-search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="AI study assistant, hackathon team, product lab..."
+                  placeholder="React, CTF, кибербез, хакатон, backend..."
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Status</Label>
+                <Label>Статус</Label>
                 <Select value={status} onValueChange={(value) => setStatus(value as "all" | ProjectStatus)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose status" />
+                    <SelectValue placeholder="Выберите статус" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="all">Все статусы</SelectItem>
                     {projectStatusOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
@@ -100,37 +133,83 @@ export function ProjectsBrowser() {
               </div>
 
               <div className="space-y-2">
-                <Label>Sort by date</Label>
-                <Select value={sort} onValueChange={(value: "asc" | "desc") => setSort(value)}>
+                <Label>Направление</Label>
+                <Select value={direction} onValueChange={(value) => setDirection(value as "all" | ProjectDirection)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose order" />
+                    <SelectValue placeholder="Выберите направление" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="desc">Newest first</SelectItem>
-                    <SelectItem value="asc">Oldest first</SelectItem>
+                    <SelectItem value="all">Все направления</SelectItem>
+                    {projectDirections.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Сортировка</Label>
+                <Select value={sort} onValueChange={(value: "asc" | "desc" | "deadline") => setSort(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите порядок" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="desc">Сначала новые</SelectItem>
+                    <SelectItem value="asc">Сначала старые</SelectItem>
+                    <SelectItem value="deadline">Ближайший дедлайн</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className="space-y-3">
-              <Label>Required skills</Label>
-              <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-4">
+              <Label>Популярные технологии</Label>
+              <div className="flex flex-wrap gap-2">
+                {popularSkillButtons.map((skill) => {
+                  const selected = selectedSkillIds.includes(skill.id);
+
+                  return (
+                    <button
+                      key={skill.id}
+                      type="button"
+                      onClick={() => toggleSkill(skill.id)}
+                      className={
+                        selected
+                          ? "rounded-full border border-teal-500 bg-teal-500 px-4 py-2 text-sm font-medium text-white"
+                          : "rounded-full border border-border bg-card/80 px-4 py-2 text-sm font-medium text-muted-foreground transition hover:border-teal-400 hover:text-foreground"
+                      }
+                    >
+                      {skill.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Требуемые навыки</Label>
+              <div className="rounded-[8px] border border-border bg-muted/60 p-4">
                 <SkillPicker skills={skills} selectedIds={selectedSkillIds} onChange={setSelectedSkillIds} />
               </div>
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <Button variant="secondary" onClick={() => {
-                setQuery("");
-                setStatus("all");
-                setSort("desc");
-                setSelectedSkillIds([]);
-              }}>
-                Reset filters
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setQuery("");
+                  setStatus("all");
+                  setDirection("all");
+                  setSort("desc");
+                  setSelectedSkillIds([]);
+                }}
+              >
+                Сбросить фильтры
               </Button>
-              <p className="self-center text-sm text-slate-500">
-                {projectsQuery.data?.items.length ?? 0} project(s) found
+              <p className="self-center text-sm text-muted-foreground">
+                Найдено проектов: {projectsQuery.data?.items.length ?? 0}
               </p>
             </div>
           </CardContent>
@@ -144,8 +223,8 @@ export function ProjectsBrowser() {
           </div>
         ) : (
           <EmptyState
-            title="No projects match these filters"
-            description="Try a broader query, fewer required skills or a different status."
+            title="По этим фильтрам ничего не найдено"
+            description="Попробуй расширить запрос, убрать часть навыков или сменить статус."
           />
         )}
       </div>

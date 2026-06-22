@@ -1,4 +1,4 @@
-basePath: /api
+﻿basePath: /api
 definitions:
   auth.AuthResponse:
     properties:
@@ -299,8 +299,8 @@ definitions:
     type: object
 info:
   contact: {}
-  description: Production-ready backend for the EduMatch educational project.
-  title: EduMatch API
+  description: Production-ready backend for the DevLink educational project.
+  title: DevLink API
   version: "1.0"
 paths:
   /auth/login:

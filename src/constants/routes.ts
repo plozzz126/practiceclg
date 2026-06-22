@@ -9,7 +9,7 @@ export const routes = {
 } as const;
 
 export const navigationLinks = [
-  { href: routes.projects, label: "Projects" },
-  { href: routes.users, label: "People" },
-  { href: routes.dashboard, label: "Dashboard" },
+  { href: routes.projects, label: "Проекты" },
+  { href: routes.users, label: "Люди" },
+  { href: routes.dashboard, label: "Дашборд" },
 ] as const;

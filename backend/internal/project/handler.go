@@ -1,11 +1,11 @@
-package project
+﻿package project
 
 import (
 	"log/slog"
 	"net/http"
 
-	"github.com/edumatch/backend/internal/middleware"
-	"github.com/edumatch/backend/internal/shared"
+	"github.com/devlink/backend/internal/middleware"
+	"github.com/devlink/backend/internal/shared"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,7 +34,8 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup, authMiddleware gin.Han
 // @Param query query string false "Search by title"
 // @Param skills query string false "Comma-separated skill UUIDs"
 // @Param status query string false "Project status"
-// @Param sort query string false "Sort by created_at: asc or desc"
+// @Param direction query string false "Project direction"
+// @Param sort query string false "Sort by created_at asc/desc or nearest deadline"
 // @Success 200 {object} shared.SuccessResponse{data=ProjectListResponse}
 // @Failure 400 {object} shared.ErrorResponse
 // @Failure 500 {object} shared.ErrorResponse

@@ -1,46 +1,17 @@
-# EduMatch — отчет за 1 неделю
+# DevLink Week 1 Report
 
-## Цель недели
+## Goal
 
-Подготовить продуктовую и техническую основу проекта EduMatch: понять рынок, описать пользовательские сценарии, спроектировать интерфейс, создать стартовую структуру проекта и базовую схему данных.
+Define the product direction, user flow, early UI, and data model for the student collaboration platform.
 
-## Выполненные задачи
+## Delivered
 
-| Задача из календарного плана | Результат |
-| --- | --- |
-| Исследование конкурентов | Подготовлен экспресс-анализ прямых и косвенных конкурентов в `competitor-analysis.md` |
-| User Flow | Описаны основные сценарии: регистрация, заполнение профиля, поиск проекта, заявка, создание проекта |
-| UI/UX дизайн | Подготовлены desktop и mobile wireframes, дизайн-система, структура экранов и интерактивный React-прототип |
-| Инициализация проекта | Создан monorepo с `apps/frontend` и `apps/backend` |
-| Проектирование базы данных | Подготовлены ER-диаграмма и PostgreSQL схема MVP |
+- Competitor snapshot
+- Product direction and wireframes
+- Figma-importable design assets
+- User flow documentation
+- Initial database model
 
-## Выбранный стек
+## Result
 
-- React + TypeScript + Vite для frontend.
-- Node.js + Express + TypeScript для backend.
-- PostgreSQL как основная БД.
-- Redis для refresh-сессий, кэша и будущих realtime-уведомлений.
-
-## Ключевые продуктовые решения
-
-- Главный сценарий приложения строится вокруг быстрого подбора проекта или тиммейта по навыкам.
-- Профиль студента является основой рекомендаций: навыки, курс, университет, описание, рейтинг.
-- Заявки в проекты отделены от участников команды, чтобы можно было реализовать статусы `pending`, `accepted`, `rejected`.
-- Чат привязан к проекту, потому что по ТЗ realtime-коммуникация нужна внутри страницы проекта.
-
-## Артефакты
-
-- `docs/week-1/competitor-analysis.md`
-- `docs/week-1/user-flow.md`
-- `docs/design/product-design.md`
-- `docs/design/wireframes.md`
-- `docs/database/er-diagram.md`
-- `db/schema.sql`
-- `apps/frontend`
-- `apps/backend`
-
-## Что готово для недели 2
-
-- Можно начинать backend-разработку регистрации, логина, refresh token flow.
-- SQL-схема уже содержит таблицы для пользователей, проектов, заявок, участников, сообщений и навыков.
-- Frontend-прототип показывает будущую структуру экранов и может быть доработан в полноценные страницы.
+Week 1 established the product shape: a dark student workspace focused on search, matching, requests, and project collaboration.

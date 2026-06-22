@@ -1,4 +1,4 @@
-module github.com/edumatch/backend
+module github.com/devlink/backend
 
 go 1.25.0
 

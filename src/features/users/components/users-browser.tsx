@@ -53,31 +53,31 @@ export function UsersBrowser() {
     <section className="container py-10 md:py-14">
       <div className="space-y-8">
         <PageIntro
-          eyebrow="Teammates"
-          title="Find students by skills, course, university and rating."
-          description="Explore public profiles and shortlist people who match your stack or study direction."
+          eyebrow="Тиммейты"
+          title="Ищи студентов по навыкам, курсу, университету и рейтингу."
+          description="Изучай публичные профили и собирай короткий список людей под свой стек и направление."
         />
 
         <Card>
           <CardContent className="grid gap-5 p-6 lg:grid-cols-5">
             <div className="lg:col-span-2">
-              <Label htmlFor="student-query">Search by name</Label>
+              <Label htmlFor="student-query">Поиск по имени</Label>
               <Input
                 id="student-query"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Aruzhan, Daniyar, Alina..."
+                placeholder="Аружан, Данияр, Алина..."
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Skill</Label>
+              <Label>Навык</Label>
               <Select value={selectedSkillId} onValueChange={setSelectedSkillId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose skill" />
+                  <SelectValue placeholder="Выберите навык" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All skills</SelectItem>
+                  <SelectItem value="all">Все навыки</SelectItem>
                   {skills.map((skill) => (
                     <SelectItem key={skill.id} value={skill.id}>
                       {skill.name}
@@ -88,7 +88,7 @@ export function UsersBrowser() {
             </div>
 
             <div>
-              <Label htmlFor="course">Course</Label>
+              <Label htmlFor="course">Курс</Label>
               <Input
                 id="course"
                 type="number"
@@ -101,7 +101,7 @@ export function UsersBrowser() {
             </div>
 
             <div>
-              <Label htmlFor="rating">Min rating</Label>
+              <Label htmlFor="rating">Мин. рейтинг</Label>
               <Input
                 id="rating"
                 type="number"
@@ -114,12 +114,12 @@ export function UsersBrowser() {
             </div>
 
             <div className="lg:col-span-3">
-              <Label htmlFor="university">University</Label>
+              <Label htmlFor="university">Университет</Label>
               <Input
                 id="university"
                 value={university}
                 onChange={(event) => setUniversity(event.target.value)}
-                placeholder="Search by university name"
+                placeholder="Поиск по названию университета"
               />
             </div>
 
@@ -134,7 +134,7 @@ export function UsersBrowser() {
                   setRating("0");
                 }}
               >
-                Reset filters
+                Сбросить фильтры
               </Button>
             </div>
           </CardContent>
@@ -148,8 +148,8 @@ export function UsersBrowser() {
           </div>
         ) : (
           <EmptyState
-            title="No students match these filters"
-            description="Try another skill, widen the university filter or remove the rating threshold."
+            title="Никто не подходит под эти фильтры"
+            description="Попробуй другой навык, ослабь фильтр по университету или убери порог рейтинга."
           />
         )}
       </div>

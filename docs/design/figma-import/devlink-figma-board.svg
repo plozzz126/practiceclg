@@ -1,0 +1,112 @@
+<svg width="1800" height="1180" viewBox="0 0 1800 1180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #071019; }
+      .frame { fill: #0f1724; stroke: #263243; stroke-width: 2; }
+      .panel { fill: #131d2b; stroke: #2a3748; stroke-width: 1.5; }
+      .title { fill: #f3f7fb; font: 700 30px Inter, Arial, sans-serif; }
+      .h1 { fill: #f3f7fb; font: 700 22px Inter, Arial, sans-serif; }
+      .body { fill: #c8d3df; font: 16px Inter, Arial, sans-serif; }
+      .small { fill: #95a6ba; font: 14px Inter, Arial, sans-serif; }
+      .teal { fill: #14b8a6; }
+      .white { fill: white; }
+      .chipA { fill: #102820; stroke: #1d7b72; stroke-width: 1; }
+      .chipB { fill: #241a41; stroke: #6d4bd3; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1800" height="1180" rx="28"/>
+  <text x="60" y="76" class="title">DevLink Figma board</text>
+  <text x="60" y="108" class="body">Screen snapshots, UI density, and mobile layout reference for direct Figma import.</text>
+
+  <g transform="translate(60 150)">
+    <rect class="frame" width="760" height="420" rx="20"/>
+    <rect x="0" y="0" width="250" height="420" rx="20" fill="#0f7a72"/>
+    <circle cx="72" cy="74" r="32" fill="#f8fafc"/>
+    <text x="63" y="82" fill="#0f7a72" font="700 20px Inter, Arial">D</text>
+    <text x="42" y="148" class="white" font="700 24px Inter, Arial">DevLink</text>
+    <text x="42" y="188" class="white" font="16px Inter, Arial">Find projects, teams, and people by stack.</text>
+    <rect x="42" y="260" width="170" height="50" rx="10" fill="rgba(255,255,255,0.16)"/>
+    <text x="58" y="290" class="white" font="14px Inter, Arial">React - Next.js - Figma - Go</text>
+    <rect class="panel" x="350" y="64" width="320" height="270" rx="12"/>
+    <text x="382" y="106" class="h1">Sign in</text>
+    <text x="382" y="136" class="small">Continue your project search</text>
+    <rect x="382" y="176" width="256" height="42" rx="8" fill="#e5e7eb"/>
+    <rect x="382" y="238" width="256" height="42" rx="8" fill="#e5e7eb"/>
+    <rect x="382" y="300" width="256" height="42" rx="8" fill="#14b8a6"/>
+    <text x="484" y="326" class="white" font="700 14px Inter, Arial">Sign in</text>
+  </g>
+
+  <g transform="translate(900 150)">
+    <rect class="frame" width="840" height="520" rx="20"/>
+    <rect class="panel" x="24" y="24" width="150" height="472" rx="18"/>
+    <circle cx="60" cy="66" r="18" fill="#14b8a6"/>
+    <text x="92" y="71" class="body">DevLink</text>
+    <rect x="36" y="118" width="102" height="40" rx="8" fill="#153635"/>
+    <text x="60" y="144" fill="#9cf4e9" font="700 14px Inter, Arial">Dashboard</text>
+    <text x="60" y="206" class="small">Projects</text>
+    <text x="60" y="258" class="small">Teammates</text>
+    <text x="60" y="310" class="small">Chat</text>
+    <text x="220" y="74" class="small" fill="#9d7bff">Practice - week 1</text>
+    <text x="220" y="116" class="h1">Student dashboard</text>
+    <rect x="220" y="156" width="500" height="42" rx="8" fill="#172231"/>
+    <rect x="742" y="156" width="70" height="42" rx="8" fill="#7c3aed"/>
+    <rect class="panel" x="220" y="228" width="170" height="90" rx="8"/>
+    <rect class="panel" x="406" y="228" width="170" height="90" rx="8"/>
+    <rect class="panel" x="592" y="228" width="220" height="90" rx="8"/>
+    <rect class="panel" x="220" y="350" width="430" height="128" rx="8"/>
+    <rect class="panel" x="676" y="350" width="136" height="128" rx="8"/>
+    <text x="240" y="274" class="body">Projects</text>
+    <text x="428" y="274" class="body">Requests</text>
+    <text x="614" y="274" class="body">Matches</text>
+    <text x="240" y="390" class="body">Recommendations</text>
+    <text x="696" y="390" class="body">My requests</text>
+  </g>
+
+  <g transform="translate(60 620)">
+    <rect class="frame" width="820" height="420" rx="20"/>
+    <rect class="panel" x="24" y="24" width="150" height="372" rx="18"/>
+    <text x="54" y="76" class="body">DevLink</text>
+    <text x="62" y="146" class="small">Dashboard</text>
+    <rect x="36" y="176" width="102" height="40" rx="8" fill="#153635"/>
+    <text x="70" y="202" fill="#9cf4e9" font="700 14px Inter, Arial">Projects</text>
+    <text x="62" y="274" class="small">Teammates</text>
+    <text x="220" y="76" class="h1">Project search</text>
+    <text x="220" y="108" class="body">Search by title, stack, skills, and deadline.</text>
+    <rect x="220" y="140" width="520" height="42" rx="8" fill="#172231"/>
+    <rect class="panel" x="220" y="220" width="180" height="150" rx="8"/>
+    <text x="246" y="256" class="body">Filters</text>
+    <rect class="chipA" x="246" y="288" width="74" height="28" rx="6"/>
+    <text x="266" y="307" fill="#9cf4e9" font="700 13px Inter, Arial">React</text>
+    <rect class="chipB" x="330" y="288" width="74" height="28" rx="6"/>
+    <text x="349" y="307" fill="#e9ddff" font="700 13px Inter, Arial">Figma</text>
+    <rect class="panel" x="426" y="220" width="314" height="150" rx="8"/>
+    <text x="454" y="256" class="body">Found projects</text>
+    <text x="454" y="304" class="body">AI Study Planner</text>
+    <text x="454" y="330" class="small">React - Node.js - PostgreSQL</text>
+  </g>
+
+  <g transform="translate(940 720)">
+    <rect class="frame" width="240" height="420" rx="34"/>
+    <rect x="18" y="18" width="204" height="384" rx="26" fill="#0b1320" stroke="#263243" stroke-width="2"/>
+    <text x="44" y="66" class="body">DevLink</text>
+    <circle cx="176" cy="58" r="18" fill="#14b8a6"/>
+    <rect x="44" y="98" width="132" height="36" rx="8" fill="#172231"/>
+    <rect class="panel" x="44" y="156" width="60" height="64" rx="8"/>
+    <rect class="panel" x="116" y="156" width="60" height="64" rx="8"/>
+    <rect class="panel" x="44" y="246" width="132" height="86" rx="8"/>
+    <rect x="44" y="352" width="132" height="36" rx="12" fill="#101722" stroke="#2a3748"/>
+    <text x="72" y="446" class="h1">Mobile dashboard</text>
+  </g>
+
+  <g transform="translate(1260 720)">
+    <rect class="frame" width="240" height="420" rx="34"/>
+    <rect x="18" y="18" width="204" height="384" rx="26" fill="#0b1320" stroke="#263243" stroke-width="2"/>
+    <text x="44" y="64" fill="#9d7bff" font="700 16px Inter, Arial">Project</text>
+    <text x="44" y="102" class="body">Hackathon Radar</text>
+    <rect x="44" y="136" width="132" height="42" rx="8" fill="#14b8a6"/>
+    <rect class="panel" x="44" y="204" width="132" height="86" rx="8"/>
+    <rect class="panel" x="44" y="316" width="132" height="64" rx="8"/>
+    <text x="80" y="446" class="h1">Mobile detail</text>
+  </g>
+</svg>

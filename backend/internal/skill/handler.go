@@ -1,10 +1,10 @@
-package skill
+﻿package skill
 
 import (
 	"log/slog"
 	"net/http"
 
-	"github.com/edumatch/backend/internal/shared"
+	"github.com/devlink/backend/internal/shared"
 	"github.com/gin-gonic/gin"
 )
 

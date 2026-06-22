@@ -1,0 +1,141 @@
+<svg width="1800" height="1200" viewBox="0 0 1800 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #070b12; }
+      .frame { fill: #101722; stroke: #273244; stroke-width: 2; }
+      .panel { fill: #131d29; stroke: #2a3749; stroke-width: 1.5; }
+      .muted { fill: #9aa9bc; font: 18px Inter, Arial, sans-serif; }
+      .body { fill: #c8d3df; font: 18px Inter, Arial, sans-serif; }
+      .small { fill: #9aa9bc; font: 14px Inter, Arial, sans-serif; }
+      .title { fill: #f4fbfb; font: 700 32px Inter, Arial, sans-serif; }
+      .h2 { fill: #f4fbfb; font: 700 22px Inter, Arial, sans-serif; }
+      .accent { fill: #14b8a6; }
+      .accentText { fill: #99f6e4; font: 700 16px Inter, Arial, sans-serif; }
+      .violet { fill: #7c3aed; }
+      .orange { fill: #fb923c; }
+      .line { stroke: #14b8a6; stroke-width: 3; marker-end: url(#arrow); }
+      .chip { fill: #102820; stroke: #1f766e; stroke-width: 1; }
+      .chip2 { fill: #251a42; stroke: #6d4bd3; stroke-width: 1; }
+      .white { fill: white; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#14b8a6"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1800" height="1200" rx="28"/>
+  <text x="64" y="72" class="title">DevLink user flow and Figma import board</text>
+  <text x="64" y="108" class="muted">Drag this SVG into Figma. Frames show auth, dashboard, project search, project detail, request review, chat, tasks and mobile flow.</text>
+
+  <g transform="translate(64 160)">
+    <rect class="frame" width="320" height="220" rx="18"/>
+    <rect class="accent" x="0" y="0" width="118" height="220" rx="18"/>
+    <circle cx="58" cy="54" r="26" fill="#f8fafc"/>
+    <text x="51" y="61" fill="#0f766e" font="700 18px Inter, Arial">D</text>
+    <text x="32" y="116" class="white" font="700 20px Inter, Arial">DevLink</text>
+    <text x="32" y="146" class="white" font="16px Inter, Arial">React - Go - CTF</text>
+    <rect class="panel" x="154" y="34" width="132" height="148" rx="10"/>
+    <text x="176" y="70" class="h2">Sign in</text>
+    <rect x="176" y="92" width="88" height="18" rx="5" fill="#223044"/>
+    <rect x="176" y="122" width="88" height="18" rx="5" fill="#223044"/>
+    <rect x="176" y="152" width="88" height="22" rx="6" fill="#14b8a6"/>
+    <text x="84" y="254" class="h2">1. Auth</text>
+    <text x="20" y="284" class="small">Login or register, then complete profile.</text>
+  </g>
+
+  <g transform="translate(500 160)">
+    <rect class="frame" width="360" height="260" rx="18"/>
+    <rect class="panel" x="22" y="22" width="70" height="216" rx="14"/>
+    <circle cx="57" cy="54" r="18" fill="#14b8a6"/>
+    <rect x="38" y="92" width="38" height="10" rx="5" fill="#99f6e4"/>
+    <rect x="38" y="124" width="38" height="10" rx="5" fill="#475569"/>
+    <rect x="38" y="156" width="38" height="10" rx="5" fill="#475569"/>
+    <rect x="118" y="36" width="200" height="32" rx="8" fill="#172232"/>
+    <rect class="panel" x="118" y="88" width="60" height="58" rx="8"/>
+    <rect class="panel" x="190" y="88" width="60" height="58" rx="8"/>
+    <rect class="panel" x="262" y="88" width="60" height="58" rx="8"/>
+    <rect class="panel" x="118" y="166" width="204" height="58" rx="8"/>
+    <text x="144" y="254" class="h2">2. Dashboard</text>
+    <text x="46" y="284" class="small">Projects, requests, matches and recommendations.</text>
+  </g>
+
+  <g transform="translate(980 160)">
+    <rect class="frame" width="380" height="300" rx="18"/>
+    <text x="30" y="48" class="h2">Project search</text>
+    <rect x="30" y="70" width="312" height="34" rx="8" fill="#172232"/>
+    <rect class="chip" x="30" y="124" width="70" height="28" rx="6"/>
+    <text x="44" y="143" class="accentText">React</text>
+    <rect class="chip2" x="108" y="124" width="78" height="28" rx="6"/>
+    <text x="124" y="143" class="accentText">Figma</text>
+    <rect class="chip" x="194" y="124" width="54" height="28" rx="6"/>
+    <text x="208" y="143" class="accentText">CTF</text>
+    <rect class="panel" x="30" y="174" width="312" height="82" rx="8"/>
+    <text x="54" y="208" class="body">Hackathon Radar</text>
+    <text x="54" y="234" class="small">TypeScript - Figma - Redis</text>
+    <text x="138" y="334" class="h2">3. Browse</text>
+    <text x="58" y="364" class="small">Search by stack, direction, role and deadline.</text>
+  </g>
+
+  <g transform="translate(1220 560)">
+    <rect class="frame" width="390" height="360" rx="18"/>
+    <text x="30" y="48" class="h2">Project detail</text>
+    <rect x="30" y="70" width="136" height="38" rx="8" fill="#14b8a6"/>
+    <text x="58" y="94" class="white" font="700 15px Inter, Arial">Join request</text>
+    <rect class="panel" x="30" y="132" width="150" height="90" rx="8"/>
+    <text x="52" y="164" class="body">Stack</text>
+    <rect class="chip" x="52" y="180" width="72" height="26" rx="6"/>
+    <rect class="panel" x="198" y="132" width="154" height="90" rx="8"/>
+    <text x="220" y="164" class="body">Team</text>
+    <rect class="panel" x="30" y="242" width="322" height="74" rx="8"/>
+    <text x="52" y="276" class="body">Chat + tasks with deadlines</text>
+    <text x="132" y="394" class="h2">4. Detail</text>
+    <text x="48" y="424" class="small">Apply, discuss tasks, check team and stack.</text>
+  </g>
+
+  <g transform="translate(680 560)">
+    <rect class="frame" width="390" height="360" rx="18"/>
+    <text x="30" y="48" class="h2">Owner request review</text>
+    <rect class="panel" x="30" y="74" width="330" height="78" rx="8"/>
+    <circle cx="64" cy="113" r="22" fill="#14b8a6"/>
+    <text x="100" y="106" class="body">Candidate profile</text>
+    <text x="100" y="130" class="small">Skills, rating, course, motivation</text>
+    <rect x="30" y="174" width="150" height="38" rx="8" fill="#14b8a6"/>
+    <text x="80" y="198" class="white" font="700 15px Inter, Arial">Accept</text>
+    <rect x="210" y="174" width="150" height="38" rx="8" fill="#263244"/>
+    <text x="262" y="198" class="body">Reject</text>
+    <rect class="panel" x="30" y="236" width="330" height="74" rx="8"/>
+    <text x="52" y="270" class="body">Accepted user joins project team</text>
+    <text x="94" y="394" class="h2">5. Decision</text>
+    <text x="52" y="424" class="small">Owner accepts or rejects with full profile context.</text>
+  </g>
+
+  <g transform="translate(112 590)">
+    <rect class="frame" width="210" height="420" rx="34"/>
+    <rect x="18" y="18" width="174" height="384" rx="26" fill="#0f1723" stroke="#273244" stroke-width="2"/>
+    <text x="42" y="66" class="body">DevLink</text>
+    <circle cx="158" cy="58" r="18" fill="#14b8a6"/>
+    <rect x="42" y="98" width="126" height="34" rx="8" fill="#172232"/>
+    <rect class="panel" x="42" y="152" width="56" height="64" rx="8"/>
+    <rect class="panel" x="112" y="152" width="56" height="64" rx="8"/>
+    <rect class="panel" x="42" y="244" width="126" height="78" rx="8"/>
+    <rect x="42" y="350" width="126" height="34" rx="10" fill="#111827" stroke="#2a3749"/>
+    <text x="62" y="454" class="h2">Mobile dashboard</text>
+  </g>
+
+  <g transform="translate(382 590)">
+    <rect class="frame" width="210" height="420" rx="34"/>
+    <rect x="18" y="18" width="174" height="384" rx="26" fill="#0f1723" stroke="#273244" stroke-width="2"/>
+    <text x="42" y="62" class="accentText">Project</text>
+    <text x="42" y="100" class="body">Hackathon Radar</text>
+    <rect x="42" y="132" width="126" height="40" rx="8" fill="#14b8a6"/>
+    <rect class="panel" x="42" y="196" width="126" height="86" rx="8"/>
+    <rect class="panel" x="42" y="306" width="126" height="64" rx="8"/>
+    <text x="50" y="454" class="h2">Mobile detail</text>
+  </g>
+
+  <path class="line" d="M 386 270 C 430 270, 450 270, 492 270"/>
+  <path class="line" d="M 864 290 C 910 290, 934 290, 972 290"/>
+  <path class="line" d="M 1174 460 C 1192 510, 1214 526, 1250 552"/>
+  <path class="line" d="M 1218 708 C 1158 708, 1122 708, 1078 708"/>
+  <path class="line" d="M 320 800 C 342 800, 354 800, 376 800"/>
+</svg>

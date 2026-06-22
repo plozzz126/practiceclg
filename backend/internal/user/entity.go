@@ -1,9 +1,9 @@
-package user
+﻿package user
 
 import (
 	"time"
 
-	"github.com/edumatch/backend/internal/skill"
+	"github.com/devlink/backend/internal/skill"
 	"github.com/google/uuid"
 )
 

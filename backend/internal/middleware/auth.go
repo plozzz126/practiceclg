@@ -1,4 +1,4 @@
-package middleware
+﻿package middleware
 
 import (
 	"errors"
@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/edumatch/backend/internal/shared"
-	jwtpkg "github.com/edumatch/backend/pkg/jwt"
+	"github.com/devlink/backend/internal/shared"
+	jwtpkg "github.com/devlink/backend/pkg/jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	redislib "github.com/redis/go-redis/v9"

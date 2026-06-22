@@ -1,4 +1,4 @@
-package skill
+﻿package skill
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/edumatch/backend/internal/shared"
+	"github.com/devlink/backend/internal/shared"
 	redislib "github.com/redis/go-redis/v9"
 )
 

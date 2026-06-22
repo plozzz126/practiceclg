@@ -1,246 +1,163 @@
-# EduMatch Backend
+# DevLink
 
-Backend второй недели практики для проекта EduMatch. Репозиторий теперь сфокусирован на production-ready API для регистрации пользователей, поиска тиммейтов и управления проектами. Frontend предполагается отдельным приложением на Next.js + TypeScript, которое будет подключаться на третьей неделе.
+DevLink is a student collaboration platform for finding projects, teammates, and stack-based matches. The repo includes a Next.js frontend, a Go backend, PostgreSQL, Redis, Figma-importable design assets, and deployment guides for Railway and Vercel.
 
-## Описание проекта
+## What is included
 
-EduMatch помогает студентам:
+- Dark workspace UI with desktop sidebar and mobile bottom navigation
+- Project search by stack, direction, status, and deadline
+- Project detail workspace with tasks, chat preview, and join-request review flow
+- Student profiles with skills, rating, course, and university filters
+- JWT auth with refresh tokens
+- PostgreSQL + Redis backend with migrations and Swagger docs
+- Figma-ready SVG boards for screens and user flow
 
-- находить тиммейтов по навыкам, курсу, университету и рейтингу;
-- создавать учебные проекты и искать участников;
-- управлять профилем, навыками и сессиями;
-- работать через JWT access token + refresh token схему.
+## Stack
 
-Реализованы:
+- Frontend: Next.js 15, React 19, TypeScript, Tailwind CSS, TanStack Query, Zustand
+- Backend: Go 1.25, Gin, pgx, Redis, JWT
+- Data: PostgreSQL, Redis
+- Docs and design: SVG Figma boards, Markdown deployment guides
 
-- регистрация, логин, refresh, logout;
-- middleware авторизации;
-- CRUD профиля пользователя;
-- CRUD проектов;
-- управление навыками пользователя;
-- поиск пользователей и проектов;
-- Redis-кэширование и хранение сессий;
-- Swagger-документация;
-- централизованная обработка ошибок;
-- Docker и миграции через `golang-migrate`.
-
-## Стек технологий
-
-- Go 1.25
-- Gin
-- PostgreSQL 16
-- Redis 7
-- JWT (`github.com/golang-jwt/jwt/v5`)
-- bcrypt
-- UUID
-- Swagger (`swaggo/gin-swagger`)
-- Docker / Docker Compose
-- golang-migrate
-
-## Архитектура
-
-Используется Clean Architecture с разделением на `handler -> service -> repository`.
+## Repository layout
 
 ```text
-backend/
-├── cmd/server
-├── configs
-├── docker
-├── docs
-├── internal
-│   ├── auth
-│   ├── middleware
-│   ├── project
-│   ├── shared
-│   ├── skill
-│   └── user
-├── migrations
-└── pkg
-    ├── jwt
-    ├── logger
-    ├── postgres
-    └── redis
+src/                     Next.js frontend
+backend/                 Go API, migrations, Dockerfile, Swagger
+db/                      SQL reference schema
+docs/design/             Design notes and Figma import assets
+docs/deployment/         Local, Railway, and Vercel guides
+Dockerfile.frontend      Frontend Docker image for local full-stack runs
+docker-compose.yml       Frontend + backend + postgres + redis
 ```
 
-Ключевые принципы:
+## Quick start
 
-- в handlers нет бизнес-логики;
-- зависимости собираются через DI в `cmd/server/main.go`;
-- ошибки и success-ответы имеют единый формат;
-- Redis используется для кэша навыков, сессий refresh token и blacklist access token.
-
-## Установка
-
-### Вариант 1. Быстрый старт через Docker
+### Option 1: full local stack with Docker
 
 ```bash
-cp .env.example .env
 docker compose up --build
 ```
 
-После старта:
+`docker compose` uses Docker-safe defaults for PostgreSQL and Redis service hosts, so it still works even if your local `.env` uses `localhost` for direct runs.
 
-- API: `http://localhost:8080`
-- Swagger UI: `http://localhost:8080/swagger/index.html`
-- Healthcheck: `http://localhost:8080/health`
+Services:
 
-### Вариант 2. Локальный запуск без Docker
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:8080/api`
+- Swagger: `http://localhost:8080/swagger/index.html`
 
-1. Поднимите PostgreSQL и Redis локально.
-2. Создайте `.env` на основе `.env.example`.
-3. Для локального запуска замените в `.env` хосты:
+### Option 2: run frontend and backend directly
+
+1. Create `.env` from `.env.example`
+2. Start PostgreSQL and Redis locally
+3. The default template already uses localhost hosts:
 
 ```env
-DATABASE_URL=postgres://edumatch:edumatch@localhost:5432/edumatch?sslmode=disable
+DATABASE_URL=postgres://devlink:devlink@localhost:5432/devlink?sslmode=disable
 REDIS_URL=redis://localhost:6379/0
+NEXT_PUBLIC_API_URL=http://localhost:8080/api
 ```
 
-4. Выполните:
+4. Install frontend packages and run Next.js:
 
 ```bash
-cd backend
-go mod tidy
-go run ./cmd/server
+npm install
+npm run dev
 ```
 
-## Переменные окружения
-
-Основные переменные:
-
-- `APP_ENV` — окружение (`development`, `production`)
-- `PORT` — порт API
-- `DATABASE_URL` — строка подключения к PostgreSQL
-- `REDIS_URL` — строка подключения к Redis
-- `JWT_ACCESS_SECRET` — секрет access token
-- `JWT_REFRESH_SECRET` — секрет refresh token
-- `ACCESS_TOKEN_TTL` — TTL access token, по умолчанию `15m`
-- `REFRESH_TOKEN_TTL` — TTL refresh token, по умолчанию `168h`
-- `SKILLS_CACHE_TTL` — TTL кэша навыков
-
-Пример лежит в `.env.example`.
-
-## Миграции
-
-Миграции находятся в [backend/migrations](/c:/Users/rpan9/Documents/projects/SessionClg/practice/backend/migrations).
-
-Полезные команды:
+5. Run the backend from the repo root:
 
 ```bash
-cd backend
-go run github.com/golang-migrate/migrate/v4/cmd/migrate@v4.19.0 \
+npm run backend:run
+```
+
+## Useful scripts
+
+```bash
+npm run dev
+npm run build
+npm run backend:run
+npm run backend:build
+npm run backend:swagger
+npm run docker:backend
+npm run docker:up
+npm run docker:down
+```
+
+## Environment variables
+
+Frontend:
+
+- `NEXT_PUBLIC_API_URL`
+
+Backend:
+
+- `APP_ENV`
+- `PORT`
+- `DATABASE_URL`
+- `REDIS_URL`
+- `JWT_ACCESS_SECRET`
+- `JWT_REFRESH_SECRET`
+- `ACCESS_TOKEN_TTL`
+- `REFRESH_TOKEN_TTL`
+- `SKILLS_CACHE_TTL`
+
+See `.env.example` for the default local template.
+For Docker Compose overrides, use `DOCKER_DATABASE_URL`, `DOCKER_REDIS_URL`, and `DOCKER_NEXT_PUBLIC_API_URL`.
+
+## Database and migrations
+
+- SQL reference schema: `db/schema.sql`
+- Backend migrations: `backend/migrations`
+- Runtime migration entrypoint: `backend/docker/start.sh`
+
+Manual migration example:
+
+```bash
+go -C backend run github.com/golang-migrate/migrate/v4/cmd/migrate@v4.19.0 \
   -path migrations \
-  -database "postgres://edumatch:edumatch@localhost:5432/edumatch?sslmode=disable" up
+  -database "postgres://devlink:devlink@localhost:5432/devlink?sslmode=disable" up
 ```
 
-При запуске через Docker миграции применяются автоматически в `backend/docker/start.sh`.
+## Deployment guides
 
-## Запуск
+- `docs/deployment/README.md`
+- `docs/deployment/local.md`
+- `docs/deployment/railway.md`
+- `docs/deployment/vercel.md`
 
-### Docker
+## Design assets
 
-```bash
-docker compose up --build
-```
+- `docs/design/figma-import/devlink-figma-board.svg`
+- `docs/design/figma-import/devlink-user-flow.svg`
+- `docs/design/figma-import/figma-transfer-guide.md`
 
-### Локальная сборка
+## API
 
-```bash
-cd backend
-go build ./cmd/server
-```
-
-### Генерация Swagger
-
-```bash
-cd backend
-make swagger
-```
-
-## API Endpoints
-
-### Auth
+Core endpoints:
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `POST /api/auth/refresh`
 - `POST /api/auth/logout`
-
-### Users
-
 - `GET /api/users`
+- `GET /api/users/:id`
 - `GET /api/users/me`
 - `PUT /api/users/me`
 - `PUT /api/users/me/skills`
-- `DELETE /api/users/me`
-- `GET /api/users/:id`
-
-Фильтры `GET /api/users`:
-
-- `query`
-- `skill`
-- `course`
-- `university`
-- `rating`
-
-### Skills
-
 - `GET /api/skills`
-
-### Projects
-
-- `POST /api/projects`
 - `GET /api/projects`
 - `GET /api/projects/:id`
+- `POST /api/projects`
 - `PUT /api/projects/:id`
 - `DELETE /api/projects/:id`
 
-Фильтры `GET /api/projects`:
+Swagger UI:
 
-- `query`
-- `skills` — CSV со списком skill UUID
-- `status`
-- `sort=asc|desc`
+- `http://localhost:8080/swagger/index.html`
 
-## Формат ответов
+## Notes
 
-Успешный ответ:
-
-```json
-{
-  "success": true,
-  "data": {}
-}
-```
-
-Ошибка:
-
-```json
-{
-  "success": false,
-  "message": "Validation failed",
-  "errors": [
-    {
-      "field": "email",
-      "message": "email must be a valid email address"
-    }
-  ]
-}
-```
-
-## Swagger
-
-Сгенерированные Swagger-файлы находятся в [backend/docs](/c:/Users/rpan9/Documents/projects/SessionClg/practice/backend/docs), а UI доступен по адресу:
-
-`http://localhost:8080/swagger/index.html`
-
-## Документы первой недели
-
-Сохранены материалы исследования и проектирования:
-
-- [docs/week-1/week-1-report.md](/c:/Users/rpan9/Documents/projects/SessionClg/practice/docs/week-1/week-1-report.md)
-- [docs/week-1/competitor-analysis.md](/c:/Users/rpan9/Documents/projects/SessionClg/practice/docs/week-1/competitor-analysis.md)
-- [docs/week-1/user-flow.md](/c:/Users/rpan9/Documents/projects/SessionClg/practice/docs/week-1/user-flow.md)
-- [docs/design/product-design.md](/c:/Users/rpan9/Documents/projects/SessionClg/practice/docs/design/product-design.md)
-- [docs/design/wireframes.md](/c:/Users/rpan9/Documents/projects/SessionClg/practice/docs/design/wireframes.md)
-- [docs/database/er-diagram.md](/c:/Users/rpan9/Documents/projects/SessionClg/practice/docs/database/er-diagram.md)
-- [db/schema.sql](/c:/Users/rpan9/Documents/projects/SessionClg/practice/db/schema.sql)
+- The project detail page includes frontend request review, task, and chat flows so the UX is ready before the realtime backend slice lands.
+- The backend schema already contains `join_requests` and `messages`, and project metadata now includes `direction`, `team_size`, and `required_roles`.

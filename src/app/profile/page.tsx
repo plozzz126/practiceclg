@@ -15,17 +15,17 @@ export default function ProfilePage() {
       <section className="container py-10 md:py-14">
         <div className="space-y-8">
           <PageIntro
-            eyebrow="Profile"
-            title="Keep your profile recommendation-ready."
-            description="Your skills, course, university and bio power project discovery and teammate matching."
+            eyebrow="Профиль"
+            title="Держи профиль готовым к рекомендациям."
+            description="Твои навыки, курс, университет и био помогают DevLink точнее подбирать проекты и команду."
           />
 
-          <AuthGuard description="Log in to manage your personal profile and skills catalog.">
+          <AuthGuard description="Войдите, чтобы управлять личным профилем и каталогом навыков.">
             {currentUser ? (
               <ProfileForm currentUser={currentUser} />
             ) : (
               <Card>
-                <CardContent className="p-6 text-sm text-slate-500">Loading your profile...</CardContent>
+                <CardContent className="p-6 text-sm text-muted-foreground">Загружаем ваш профиль...</CardContent>
               </Card>
             )}
           </AuthGuard>

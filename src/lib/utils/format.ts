@@ -1,10 +1,10 @@
 export function formatDate(value?: string | null) {
   if (!value) {
-    return "No deadline";
+    return "Без дедлайна";
   }
 
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
+  return new Intl.DateTimeFormat("ru-RU", {
+    month: "long",
     day: "numeric",
     year: "numeric",
   }).format(new Date(value));
@@ -12,12 +12,12 @@ export function formatDate(value?: string | null) {
 
 export function formatRelativeDate(value?: string | null) {
   if (!value) {
-    return "No recent activity";
+    return "Нет недавней активности";
   }
 
   const date = new Date(value);
   const diff = date.getTime() - Date.now();
-  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  const formatter = new Intl.RelativeTimeFormat("ru", { numeric: "auto" });
   const days = Math.round(diff / (1000 * 60 * 60 * 24));
 
   if (Math.abs(days) >= 1) {

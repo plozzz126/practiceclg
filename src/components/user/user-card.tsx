@@ -20,35 +20,35 @@ export function UserCard({
     <Card className="h-full transition hover:-translate-y-1">
       <CardContent className="flex h-full flex-col gap-5 p-6">
         <div className="flex items-start gap-4">
-          <Avatar className="h-16 w-16 rounded-3xl">
+          <Avatar className="h-16 w-16 rounded-[8px]">
             <AvatarImage src={user.avatar_url ?? undefined} alt={user.full_name} />
-            <AvatarFallback className="rounded-3xl bg-slate-100 text-slate-700">
+            <AvatarFallback className="rounded-[8px] bg-muted text-foreground">
               {getInitials(user.full_name)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-2">
             <div>
-              <h3 className="font-display text-2xl font-semibold text-slate-950">{user.full_name}</h3>
-              <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+              <h3 className="font-display text-2xl font-semibold text-foreground">{user.full_name}</h3>
+              <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5">
                   <School className="h-4 w-4" />
-                  {user.university || "University not set"}
+                  {user.university || "Университет не указан"}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <GraduationCap className="h-4 w-4" />
-                  {user.course ? `Course ${user.course}` : "Course not set"}
+                  {user.course ? `Курс ${user.course}` : "Курс не указан"}
                 </span>
               </div>
             </div>
-            <Badge className="w-fit bg-amber-50 text-amber-800" variant="outline">
+            <Badge className="w-fit" variant="warning">
               <Star className="mr-1 h-3.5 w-3.5" />
-              Rating {formatRating(user.rating)}
+              Рейтинг {formatRating(user.rating)}
             </Badge>
           </div>
         </div>
 
-        <p className="line-clamp-4 text-sm leading-6 text-slate-600">
-          {user.bio || "This student has not added a short introduction yet."}
+        <p className="line-clamp-4 text-sm leading-6 text-muted-foreground">
+          {user.bio || "Этот студент пока не добавил короткое описание."}
         </p>
 
         <div className="flex flex-wrap gap-2">
@@ -59,13 +59,13 @@ export function UserCard({
               </Badge>
             ))
           ) : (
-            <Badge variant="secondary">Skills are not specified yet</Badge>
+            <Badge variant="secondary">Навыки пока не указаны</Badge>
           )}
         </div>
 
         <div className="mt-auto flex flex-wrap items-center gap-3">
           <Button asChild>
-            <Link href={`/users/${user.id}`}>View profile</Link>
+            <Link href={`/users/${user.id}`}>Открыть профиль</Link>
           </Button>
           {action}
         </div>

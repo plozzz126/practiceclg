@@ -1,10 +1,10 @@
-package project
+﻿package project
 
 import (
 	"time"
 
-	"github.com/edumatch/backend/internal/skill"
-	"github.com/edumatch/backend/internal/user"
+	"github.com/devlink/backend/internal/skill"
+	"github.com/devlink/backend/internal/user"
 	"github.com/google/uuid"
 )
 
@@ -15,15 +15,33 @@ const (
 	StatusArchived = "archived"
 )
 
+const (
+	DirectionWeb           = "web"
+	DirectionMobile        = "mobile"
+	DirectionAI            = "ai"
+	DirectionData          = "data"
+	DirectionDesign        = "design"
+	DirectionHackathon     = "hackathon"
+	DirectionCTF           = "ctf"
+	DirectionCybersecurity = "cybersecurity"
+	DirectionStartup       = "startup"
+	DirectionEducation     = "education"
+	DirectionResearch      = "research"
+	DirectionOpenSource    = "open_source"
+)
+
 type Project struct {
-	ID          uuid.UUID  `json:"id"`
-	OwnerID     uuid.UUID  `json:"owner_id"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Deadline    *time.Time `json:"deadline,omitempty"`
-	Status      string     `json:"status"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	ID            uuid.UUID  `json:"id"`
+	OwnerID       uuid.UUID  `json:"owner_id"`
+	Title         string     `json:"title"`
+	Description   string     `json:"description"`
+	Deadline      *time.Time `json:"deadline,omitempty"`
+	Status        string     `json:"status"`
+	Direction     string     `json:"direction"`
+	TeamSize      int        `json:"team_size"`
+	RequiredRoles []string   `json:"required_roles"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
 type Detail struct {
@@ -34,8 +52,9 @@ type Detail struct {
 }
 
 type Filters struct {
-	Query    string
-	Status   string
-	Sort     string
-	SkillIDs []uuid.UUID
+	Query     string
+	Status    string
+	Direction string
+	Sort      string
+	SkillIDs  []uuid.UUID
 }
