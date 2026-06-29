@@ -6,7 +6,7 @@ DevLink is a student collaboration platform for finding projects, teammates, and
 
 - Dark workspace UI with desktop sidebar and mobile bottom navigation
 - Project search by stack, direction, status, and deadline
-- Project detail workspace with tasks, chat preview, and join-request review flow
+- Project detail workspace with real tasks, chat, documentation links, invitations, and join-request review flow
 - Student profiles with skills, rating, course, and university filters
 - JWT auth with refresh tokens
 - PostgreSQL + Redis backend with migrations and Swagger docs
@@ -66,11 +66,16 @@ npm install
 npm run dev
 ```
 
+If the repository path contains unsupported characters for Next.js tooling, the `dev`, `build`, `start`, and `lint`
+scripts automatically mirror the frontend into `/tmp/practiceclg-run` and run there.
+
 5. Run the backend from the repo root:
 
 ```bash
 npm run backend:run
 ```
+
+The backend applies pending SQL migrations automatically on startup.
 
 ## Useful scripts
 
@@ -97,6 +102,7 @@ Backend:
 - `PORT`
 - `DATABASE_URL`
 - `REDIS_URL`
+- `CORS_ALLOWED_ORIGINS`
 - `JWT_ACCESS_SECRET`
 - `JWT_REFRESH_SECRET`
 - `ACCESS_TOKEN_TTL`
@@ -145,13 +151,28 @@ Core endpoints:
 - `GET /api/users/:id`
 - `GET /api/users/me`
 - `PUT /api/users/me`
+- `PUT /api/users/me/privacy`
 - `PUT /api/users/me/skills`
 - `GET /api/skills`
 - `GET /api/projects`
+- `GET /api/projects/mine`
+- `GET /api/projects/participating`
+- `GET /api/projects/invitations/mine`
 - `GET /api/projects/:id`
 - `POST /api/projects`
 - `PUT /api/projects/:id`
 - `DELETE /api/projects/:id`
+- `GET /api/projects/:id/tasks`
+- `POST /api/projects/:id/tasks`
+- `GET /api/projects/:id/documents`
+- `POST /api/projects/:id/documents`
+- `GET /api/projects/:id/join-requests`
+- `POST /api/projects/:id/join-requests`
+- `GET /api/projects/:id/invite-candidates`
+- `GET /api/projects/:id/invitations`
+- `POST /api/projects/:id/invitations`
+- `GET /api/projects/:id/messages`
+- `POST /api/projects/:id/messages`
 
 Swagger UI:
 
@@ -159,5 +180,5 @@ Swagger UI:
 
 ## Notes
 
-- The project detail page includes frontend request review, task, and chat flows so the UX is ready before the realtime backend slice lands.
-- The backend schema already contains `join_requests` and `messages`, and project metadata now includes `direction`, `team_size`, and `required_roles`.
+- The project detail page now uses real backend data for tasks, chat, join requests, documentation links, and invitations.
+- In development, localhost origins on alternative ports such as `3001` are accepted by CORS so local demos do not break if port `3000` is busy.

@@ -1,4 +1,4 @@
-﻿package project
+package project
 
 import (
 	"log/slog"
@@ -21,10 +21,30 @@ func NewHandler(service Service, logger *slog.Logger) *Handler {
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup, authMiddleware gin.HandlerFunc) {
 	projects := router.Group("/projects")
 	projects.GET("", shared.Wrap(h.logger, h.listProjects))
+	projects.GET("/mine", authMiddleware, shared.Wrap(h.logger, h.listMyProjects))
+	projects.GET("/participating", authMiddleware, shared.Wrap(h.logger, h.listParticipatingProjects))
+	projects.GET("/invitations/mine", authMiddleware, shared.Wrap(h.logger, h.listMyInvitations))
+	projects.POST("/invitations/:invitationId/decision", authMiddleware, shared.Wrap(h.logger, h.reviewInvitation))
 	projects.GET("/:id", shared.Wrap(h.logger, h.getProjectByID))
 	projects.POST("", authMiddleware, shared.Wrap(h.logger, h.createProject))
 	projects.PUT("/:id", authMiddleware, shared.Wrap(h.logger, h.updateProject))
 	projects.DELETE("/:id", authMiddleware, shared.Wrap(h.logger, h.deleteProject))
+	projects.GET("/:id/documents", shared.Wrap(h.logger, h.listDocuments))
+	projects.POST("/:id/documents", authMiddleware, shared.Wrap(h.logger, h.createDocument))
+	projects.DELETE("/:id/documents/:documentId", authMiddleware, shared.Wrap(h.logger, h.deleteDocument))
+	projects.GET("/:id/tasks", shared.Wrap(h.logger, h.listTasks))
+	projects.POST("/:id/tasks", authMiddleware, shared.Wrap(h.logger, h.createTask))
+	projects.PUT("/:id/tasks/:taskId", authMiddleware, shared.Wrap(h.logger, h.updateTask))
+	projects.DELETE("/:id/tasks/:taskId", authMiddleware, shared.Wrap(h.logger, h.deleteTask))
+	projects.GET("/:id/join-requests", authMiddleware, shared.Wrap(h.logger, h.listJoinRequests))
+	projects.GET("/:id/join-requests/mine", authMiddleware, shared.Wrap(h.logger, h.getMyJoinRequest))
+	projects.POST("/:id/join-requests", authMiddleware, shared.Wrap(h.logger, h.submitJoinRequest))
+	projects.POST("/:id/join-requests/:requestId/decision", authMiddleware, shared.Wrap(h.logger, h.reviewJoinRequest))
+	projects.GET("/:id/invite-candidates", authMiddleware, shared.Wrap(h.logger, h.listInviteCandidates))
+	projects.GET("/:id/invitations", authMiddleware, shared.Wrap(h.logger, h.listProjectInvitations))
+	projects.POST("/:id/invitations", authMiddleware, shared.Wrap(h.logger, h.createInvitation))
+	projects.GET("/:id/messages", authMiddleware, shared.Wrap(h.logger, h.listMessages))
+	projects.POST("/:id/messages", authMiddleware, shared.Wrap(h.logger, h.createMessage))
 }
 
 // listProjects godoc

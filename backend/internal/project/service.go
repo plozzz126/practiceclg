@@ -1,4 +1,4 @@
-﻿package project
+package project
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/devlink/backend/internal/shared"
+	"github.com/devlink/backend/internal/user"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -15,9 +16,29 @@ import (
 type Service interface {
 	Create(ctx context.Context, ownerID uuid.UUID, request CreateProjectRequest) (*Detail, error)
 	List(ctx context.Context, query ListProjectsQuery) ([]Detail, error)
+	ListOwnedByUser(ctx context.Context, userID uuid.UUID) ([]Detail, error)
+	ListParticipating(ctx context.Context, userID uuid.UUID) ([]Detail, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*Detail, error)
 	Update(ctx context.Context, actorID, projectID uuid.UUID, request UpdateProjectRequest) (*Detail, error)
 	Delete(ctx context.Context, actorID, projectID uuid.UUID) error
+	ListDocuments(ctx context.Context, projectID uuid.UUID) ([]Document, error)
+	CreateDocument(ctx context.Context, actorID, projectID uuid.UUID, request CreateDocumentRequest) (*Document, error)
+	DeleteDocument(ctx context.Context, actorID, projectID, documentID uuid.UUID) error
+	ListTasks(ctx context.Context, projectID uuid.UUID) ([]Task, error)
+	CreateTask(ctx context.Context, actorID, projectID uuid.UUID, request CreateTaskRequest) (*Task, error)
+	UpdateTask(ctx context.Context, actorID, projectID, taskID uuid.UUID, request UpdateTaskRequest) (*Task, error)
+	DeleteTask(ctx context.Context, actorID, projectID, taskID uuid.UUID) error
+	GetMyJoinRequest(ctx context.Context, actorID, projectID uuid.UUID) (*JoinRequestDetail, error)
+	ListJoinRequests(ctx context.Context, actorID, projectID uuid.UUID) ([]JoinRequestDetail, error)
+	SubmitJoinRequest(ctx context.Context, actorID, projectID uuid.UUID, request CreateJoinRequestRequest) (*JoinRequestDetail, error)
+	ReviewJoinRequest(ctx context.Context, actorID, projectID, requestID uuid.UUID, request ReviewJoinRequestRequest) (*JoinRequestDetail, error)
+	ListInviteCandidates(ctx context.Context, actorID, projectID uuid.UUID, query ListInviteCandidatesQuery) ([]user.User, error)
+	ListProjectInvitations(ctx context.Context, actorID, projectID uuid.UUID) ([]InvitationDetail, error)
+	CreateInvitation(ctx context.Context, actorID, projectID uuid.UUID, request CreateInvitationRequest) (*InvitationDetail, error)
+	ListMyInvitations(ctx context.Context, userID uuid.UUID) ([]InvitationDetail, error)
+	ReviewInvitation(ctx context.Context, actorID, invitationID uuid.UUID, request ReviewInvitationRequest) (*InvitationDetail, error)
+	ListMessages(ctx context.Context, actorID, projectID uuid.UUID) ([]MessageDetail, error)
+	CreateMessage(ctx context.Context, actorID, projectID uuid.UUID, request CreateMessageRequest) (*MessageDetail, error)
 }
 
 type skillValidator interface {
@@ -27,10 +48,19 @@ type skillValidator interface {
 type service struct {
 	repo     Repository
 	skillSvc skillValidator
+	notifier interface {
+		CreateNotification(ctx context.Context, params user.NotificationCreateParams) error
+	}
 }
 
-func NewService(repo Repository, skillSvc skillValidator) Service {
-	return &service{repo: repo, skillSvc: skillSvc}
+func NewService(
+	repo Repository,
+	skillSvc skillValidator,
+	notifier interface {
+		CreateNotification(ctx context.Context, params user.NotificationCreateParams) error
+	},
+) Service {
+	return &service{repo: repo, skillSvc: skillSvc, notifier: notifier}
 }
 
 func (s *service) Create(ctx context.Context, ownerID uuid.UUID, request CreateProjectRequest) (*Detail, error) {
@@ -108,6 +138,24 @@ func (s *service) List(ctx context.Context, query ListProjectsQuery) ([]Detail, 
 	})
 	if err != nil {
 		return nil, shared.WrapInternal(err, "Failed to load projects")
+	}
+
+	return projects, nil
+}
+
+func (s *service) ListOwnedByUser(ctx context.Context, userID uuid.UUID) ([]Detail, error) {
+	projects, err := s.repo.ListOwnedByUser(ctx, userID)
+	if err != nil {
+		return nil, shared.WrapInternal(err, "Failed to load owned projects")
+	}
+
+	return projects, nil
+}
+
+func (s *service) ListParticipating(ctx context.Context, userID uuid.UUID) ([]Detail, error) {
+	projects, err := s.repo.ListParticipating(ctx, userID)
+	if err != nil {
+		return nil, shared.WrapInternal(err, "Failed to load participating projects")
 	}
 
 	return projects, nil

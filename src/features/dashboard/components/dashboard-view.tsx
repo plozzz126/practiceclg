@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, FolderKanban, Sparkles, UserRoundSearch } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowRight, CheckCircle2, FolderKanban, Sparkles, UserRoundSearch, XCircle } from "lucide-react";
+import { toast } from "sonner";
 
 import { AuthGuard } from "@/components/guards/auth-guard";
 import { PageIntro } from "@/components/layout/page-intro";
 import { ProjectCard } from "@/components/project/project-card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { UserCard } from "@/components/user/user-card";
 import { queryKeys } from "@/constants/query-keys";
+import { getProjectDirectionLabel } from "@/constants/project-directions";
 import { routes } from "@/constants/routes";
 import { projectsApi } from "@/lib/api/projects";
 import { usersApi } from "@/lib/api/users";
+import { getApiErrorMessage } from "@/lib/utils/helpers";
 import { useUserStore } from "@/store/user-store";
 import type { Project } from "@/types/project";
 
@@ -29,6 +33,7 @@ function getProjectScore(project: Project, userSkillIds: string[]) {
 
 export function DashboardView() {
   const currentUser = useUserStore((state) => state.currentUser);
+  const queryClient = useQueryClient();
 
   const projectsQuery = useQuery({
     queryKey: queryKeys.projects(),
@@ -42,6 +47,34 @@ export function DashboardView() {
     enabled: Boolean(primarySkillId),
   });
 
+  const invitationsQuery = useQuery({
+    queryKey: queryKeys.myProjectInvitations,
+    queryFn: () => projectsApi.listMyInvitations(),
+    enabled: Boolean(currentUser),
+    refetchInterval: 10000,
+  });
+
+  const participatingProjectsQuery = useQuery({
+    queryKey: queryKeys.participatingProjects,
+    queryFn: () => projectsApi.listParticipating(),
+    enabled: Boolean(currentUser),
+  });
+
+  const reviewInvitationMutation = useMutation({
+    mutationFn: ({ invitationId, decision }: { invitationId: string; decision: "accepted" | "rejected" }) =>
+      projectsApi.reviewInvitation(invitationId, { decision }),
+    onSuccess: (_, variables) => {
+      toast.success(variables.decision === "accepted" ? "Приглашение принято." : "Приглашение отклонено.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.myProjectInvitations });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
+      queryClient.invalidateQueries({ queryKey: queryKeys.participatingProjects });
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Не удалось обработать приглашение."));
+    },
+  });
+
   const dashboard = useMemo(() => {
     if (!currentUser) {
       return {
@@ -53,10 +86,14 @@ export function DashboardView() {
 
     const projectItems = projectsQuery.data?.items ?? [];
     const userSkillIds = currentUser.skills.map((skill) => skill.id);
+    const participatingProjectIds = new Set((participatingProjectsQuery.data?.items ?? []).map((project) => project.id));
 
     const myProjects = projectItems.filter((project) => project.owner_id === currentUser.id);
     const recommendedProjects = projectItems
-      .filter((project) => project.owner_id !== currentUser.id && project.status === "open")
+      .filter(
+        (project) =>
+          project.owner_id !== currentUser.id && project.status === "open" && !participatingProjectIds.has(project.id),
+      )
       .sort((left, right) => getProjectScore(right, userSkillIds) - getProjectScore(left, userSkillIds))
       .slice(0, 3);
 
@@ -67,7 +104,7 @@ export function DashboardView() {
       recommendedProjects,
       matchingUsers,
     };
-  }, [currentUser, matchesQuery.data?.items, projectsQuery.data?.items]);
+  }, [currentUser, matchesQuery.data?.items, participatingProjectsQuery.data?.items, projectsQuery.data?.items]);
 
   return (
     <AuthGuard description="Войдите, чтобы хранить в одном месте профиль, проекты и персональные рекомендации.">
@@ -142,6 +179,79 @@ export function DashboardView() {
             </div>
 
             <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-2xl">
+                    <CheckCircle2 className="h-5 w-5 text-tone-primary" />
+                    Приглашения в проекты
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {invitationsQuery.data?.items.length ? (
+                    invitationsQuery.data.items.map((invitation) => (
+                      <div key={invitation.id} className="rounded-[8px] border border-border bg-muted/45 p-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-medium text-foreground">{invitation.project.title}</p>
+                          <Badge variant="secondary">{getProjectDirectionLabel(invitation.project.direction)}</Badge>
+                          <Badge>{invitation.status === "pending" ? "Ожидает ответа" : invitation.status === "accepted" ? "Принято" : "Отклонено"}</Badge>
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                          Приглашает: {invitation.sender.full_name}
+                        </p>
+                        {invitation.message ? (
+                          <p className="mt-2 text-sm leading-6 text-muted-foreground">{invitation.message}</p>
+                        ) : null}
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          Команда {invitation.project.participants_count}/{invitation.project.team_size}
+                        </p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Button asChild size="sm" variant="secondary">
+                            <Link href={`/projects/${invitation.project.id}`}>Открыть проект</Link>
+                          </Button>
+                          {invitation.status === "pending" ? (
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() =>
+                                  reviewInvitationMutation.mutate({
+                                    invitationId: invitation.id,
+                                    decision: "accepted",
+                                  })
+                                }
+                                disabled={reviewInvitationMutation.isPending}
+                              >
+                                <CheckCircle2 />
+                                Принять
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() =>
+                                  reviewInvitationMutation.mutate({
+                                    invitationId: invitation.id,
+                                    decision: "rejected",
+                                  })
+                                }
+                                disabled={reviewInvitationMutation.isPending}
+                              >
+                                <XCircle />
+                                Отклонить
+                              </Button>
+                            </>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <EmptyState
+                      className="min-h-52"
+                      title="Приглашений пока нет"
+                      description="Когда лидер проекта позовет тебя в команду, приглашение появится здесь и в уведомлениях."
+                    />
+                  )}
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-2xl">

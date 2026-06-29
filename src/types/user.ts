@@ -17,6 +17,7 @@ export interface PublicUser extends UserBase {
 
 export interface CurrentUser extends UserBase {
   email: string;
+  allow_project_invites: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -33,6 +34,24 @@ export interface UpdateProfilePayload {
   avatar_url?: string;
 }
 
+export interface UpdatePrivacyPayload {
+  allow_project_invites: boolean;
+}
+
 export interface UpdateSkillsPayload {
   skill_ids: string[];
+}
+
+export interface NotificationItem {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  link?: string | null;
+  read_at?: string | null;
+  created_at: string;
+}
+
+export interface NotificationListResponse {
+  items: NotificationItem[];
 }

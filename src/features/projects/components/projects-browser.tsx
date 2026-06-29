@@ -27,6 +27,7 @@ import { useSkillsCatalog } from "@/lib/hooks/use-skills-catalog";
 import { useDebouncedValue } from "@/lib/hooks/use-debounced-value";
 import { projectsApi } from "@/lib/api/projects";
 import { useAuthStore } from "@/store/auth-store";
+import { useUserStore } from "@/store/user-store";
 import type { ProjectStatus } from "@/constants/project-status";
 import type { Skill } from "@/types/skill";
 
@@ -47,6 +48,7 @@ const popularTechnologies = [
 
 export function ProjectsBrowser() {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const currentUser = useUserStore((state) => state.currentUser);
   const { skills } = useSkillsCatalog();
 
   const [query, setQuery] = useState("");
@@ -88,6 +90,18 @@ export function ProjectsBrowser() {
     queryFn: () => projectsApi.list(params),
   });
 
+  const myProjectsQuery = useQuery({
+    queryKey: queryKeys.myProjects,
+    queryFn: () => projectsApi.listMine(),
+    enabled: Boolean(accessToken && currentUser),
+  });
+
+  const participatingProjectsQuery = useQuery({
+    queryKey: queryKeys.participatingProjects,
+    queryFn: () => projectsApi.listParticipating(),
+    enabled: Boolean(accessToken && currentUser),
+  });
+
   return (
     <section className="container py-10 md:py-14">
       <div className="space-y-8">
@@ -97,6 +111,60 @@ export function ProjectsBrowser() {
           description="Используй фильтры, чтобы находить активные студенческие проекты под свои навыки и текущую загрузку."
           actions={accessToken ? <CreateProjectDialog /> : undefined}
         />
+
+        {accessToken && currentUser ? (
+          <div className="grid gap-6 xl:grid-cols-2">
+            <Card>
+              <CardContent className="space-y-4 p-6">
+                <div>
+                  <h2 className="font-display text-2xl font-semibold text-foreground">Мои проекты</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Здесь собраны проекты, которые ты создал и которыми управляешь сам.
+                  </p>
+                </div>
+
+                {myProjectsQuery.data?.items.length ? (
+                  <div className="grid gap-4">
+                    {myProjectsQuery.data.items.map((project) => (
+                      <ProjectCard key={project.id} project={project} />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState
+                    className="min-h-40"
+                    title="Своих проектов пока нет"
+                    description="Создай первый проект, чтобы собирать команду и приглашать людей напрямую."
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="space-y-4 p-6">
+                <div>
+                  <h2 className="font-display text-2xl font-semibold text-foreground">Участвую</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Проекты, где ты уже в команде, но не являешься владельцем.
+                  </p>
+                </div>
+
+                {participatingProjectsQuery.data?.items.length ? (
+                  <div className="grid gap-4">
+                    {participatingProjectsQuery.data.items.map((project) => (
+                      <ProjectCard key={project.id} project={project} />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState
+                    className="min-h-40"
+                    title="Пока ни в одной команде"
+                    description="Когда тебя примут или пригласят в проект, он появится в этом блоке."
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        ) : null}
 
         <Card>
           <CardContent className="space-y-5 p-6">
@@ -214,6 +282,13 @@ export function ProjectsBrowser() {
             </div>
           </CardContent>
         </Card>
+
+        <div>
+          <h2 className="font-display text-2xl font-semibold text-foreground">Все проекты</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Общий каталог для поиска новых команд, задач и направлений под твой стек.
+          </p>
+        </div>
 
         {projectsQuery.data?.items.length ? (
           <div className="grid gap-4 xl:grid-cols-2">

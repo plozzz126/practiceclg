@@ -1,4 +1,4 @@
-﻿package user
+package user
 
 import (
 	"log/slog"
@@ -23,7 +23,11 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup, authMiddleware gin.Han
 	users.GET("", shared.Wrap(h.logger, h.listUsers))
 	users.GET("/me", authMiddleware, shared.Wrap(h.logger, h.getCurrentProfile))
 	users.PUT("/me", authMiddleware, shared.Wrap(h.logger, h.updateCurrentProfile))
+	users.PUT("/me/privacy", authMiddleware, shared.Wrap(h.logger, h.updateCurrentPrivacy))
 	users.PUT("/me/skills", authMiddleware, shared.Wrap(h.logger, h.updateCurrentSkills))
+	users.GET("/me/notifications", authMiddleware, shared.Wrap(h.logger, h.listMyNotifications))
+	users.POST("/me/notifications/read-all", authMiddleware, shared.Wrap(h.logger, h.markAllNotificationsRead))
+	users.POST("/me/notifications/:id/read", authMiddleware, shared.Wrap(h.logger, h.markNotificationRead))
 	users.DELETE("/me", authMiddleware, shared.Wrap(h.logger, h.deleteCurrentUser))
 	users.GET("/:id", shared.Wrap(h.logger, h.getPublicProfile))
 }

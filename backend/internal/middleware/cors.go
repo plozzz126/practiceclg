@@ -2,11 +2,13 @@ package middleware
 
 import (
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func NewCORSMiddleware(allowedOrigins []string) gin.HandlerFunc {
+func NewCORSMiddleware(appEnv string, allowedOrigins []string) gin.HandlerFunc {
 	allowed := make(map[string]struct{}, len(allowedOrigins))
 	for _, origin := range allowedOrigins {
 		if origin != "" {
@@ -16,7 +18,7 @@ func NewCORSMiddleware(allowedOrigins []string) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		origin := c.GetHeader("Origin")
-		if _, ok := allowed[origin]; ok {
+		if isAllowedOrigin(appEnv, allowed, origin) {
 			c.Header("Access-Control-Allow-Origin", origin)
 			c.Header("Vary", "Origin")
 			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
@@ -31,4 +33,30 @@ func NewCORSMiddleware(allowedOrigins []string) gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func isAllowedOrigin(appEnv string, allowed map[string]struct{}, origin string) bool {
+	if origin == "" {
+		return false
+	}
+
+	if _, ok := allowed[origin]; ok {
+		return true
+	}
+
+	if strings.EqualFold(appEnv, "production") {
+		return false
+	}
+
+	parsed, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+
+	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+		return false
+	}
+
+	host := parsed.Hostname()
+	return host == "localhost" || host == "127.0.0.1"
 }

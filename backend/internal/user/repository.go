@@ -1,4 +1,4 @@
-﻿package user
+package user
 
 import (
 	"context"
@@ -18,7 +18,12 @@ type Repository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*User, error)
 	List(ctx context.Context, filters Filters) ([]User, error)
 	UpdateProfile(ctx context.Context, id uuid.UUID, params UpdateProfileParams) (*User, error)
+	UpdatePrivacy(ctx context.Context, id uuid.UUID, allowProjectInvites bool) (*User, error)
 	ReplaceSkills(ctx context.Context, id uuid.UUID, skillIDs []string) (*User, error)
+	ListNotifications(ctx context.Context, recipientID uuid.UUID) ([]Notification, error)
+	CreateNotification(ctx context.Context, params NotificationCreateParams) error
+	MarkNotificationRead(ctx context.Context, recipientID, notificationID uuid.UUID) error
+	MarkAllNotificationsRead(ctx context.Context, recipientID uuid.UUID) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -39,6 +44,14 @@ type UpdateProfileParams struct {
 	Course     *int
 	Bio        *string
 	AvatarURL  *string
+}
+
+type NotificationCreateParams struct {
+	RecipientID uuid.UUID
+	Type        string
+	Title       string
+	Body        string
+	Link        *string
 }
 
 type repository struct {
@@ -64,8 +77,8 @@ func (r *repository) Create(ctx context.Context, params CreateParams) (*User, er
 
 	var id uuid.UUID
 	err = tx.QueryRow(ctx, `
-		INSERT INTO users (email, password_hash, full_name, university, course, bio, avatar_url)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO users (email, password_hash, full_name, university, course, bio, avatar_url, allow_project_invites)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, true)
 		RETURNING id
 	`, params.Email, params.PasswordHash, params.FullName, params.University, params.Course, params.Bio, params.AvatarURL).Scan(&id)
 	if err != nil {
@@ -108,7 +121,7 @@ func (r *repository) GetByID(ctx context.Context, id uuid.UUID) (*User, error) {
 
 func (r *repository) List(ctx context.Context, filters Filters) ([]User, error) {
 	query := `
-		SELECT DISTINCT u.id, u.email, u.full_name, u.university, u.course, u.bio, u.avatar_url, u.rating, u.created_at, u.updated_at
+		SELECT DISTINCT u.id, u.email, u.full_name, u.university, u.course, u.bio, u.avatar_url, u.allow_project_invites, u.rating, u.created_at, u.updated_at
 		FROM users u
 	`
 
@@ -233,6 +246,23 @@ func (r *repository) UpdateProfile(ctx context.Context, id uuid.UUID, params Upd
 	return r.GetByID(ctx, id)
 }
 
+func (r *repository) UpdatePrivacy(ctx context.Context, id uuid.UUID, allowProjectInvites bool) (*User, error) {
+	commandTag, err := r.db.Exec(ctx, `
+		UPDATE users
+		SET allow_project_invites = $1, updated_at = now()
+		WHERE id = $2
+	`, allowProjectInvites, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return nil, pgx.ErrNoRows
+	}
+
+	return r.GetByID(ctx, id)
+}
+
 func (r *repository) ReplaceSkills(ctx context.Context, id uuid.UUID, skillIDs []string) (*User, error) {
 	tx, err := r.db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -270,7 +300,7 @@ func (r *repository) Delete(ctx context.Context, id uuid.UUID) error {
 
 func getUserByID(ctx context.Context, q dbQuerier, id uuid.UUID) (*User, error) {
 	row := q.QueryRow(ctx, `
-		SELECT id, email, full_name, university, course, bio, avatar_url, rating, created_at, updated_at
+		SELECT id, email, full_name, university, course, bio, avatar_url, allow_project_invites, rating, created_at, updated_at
 		FROM users
 		WHERE id = $1
 	`, id)
@@ -284,6 +314,7 @@ func getUserByID(ctx context.Context, q dbQuerier, id uuid.UUID) (*User, error) 
 		&user.Course,
 		&user.Bio,
 		&user.AvatarURL,
+		&user.AllowProjectInvites,
 		&user.Rating,
 		&user.CreatedAt,
 		&user.UpdatedAt,
@@ -364,6 +395,7 @@ func scanUser(rows pgx.Rows) (User, error) {
 		&user.Course,
 		&user.Bio,
 		&user.AvatarURL,
+		&user.AllowProjectInvites,
 		&user.Rating,
 		&user.CreatedAt,
 		&user.UpdatedAt,

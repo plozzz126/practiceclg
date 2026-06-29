@@ -1,4 +1,4 @@
-﻿package user
+package user
 
 import (
 	"context"
@@ -17,7 +17,12 @@ type Service interface {
 	GetPublic(ctx context.Context, userID uuid.UUID) (*User, error)
 	List(ctx context.Context, query ListUsersQuery) ([]User, error)
 	UpdateProfile(ctx context.Context, userID uuid.UUID, request UpdateProfileRequest) (*User, error)
+	UpdatePrivacy(ctx context.Context, userID uuid.UUID, request UpdatePrivacyRequest) (*User, error)
 	UpdateSkills(ctx context.Context, userID uuid.UUID, skillIDs []string) (*User, error)
+	ListNotifications(ctx context.Context, userID uuid.UUID) ([]Notification, error)
+	CreateNotification(ctx context.Context, params NotificationCreateParams) error
+	MarkNotificationRead(ctx context.Context, userID, notificationID uuid.UUID) error
+	MarkAllNotificationsRead(ctx context.Context, userID uuid.UUID) error
 	Delete(ctx context.Context, userID uuid.UUID) error
 }
 
@@ -91,6 +96,15 @@ func (s *service) UpdateProfile(ctx context.Context, userID uuid.UUID, request U
 		Bio:        normalizeOptionalString(request.Bio),
 		AvatarURL:  normalizeOptionalString(request.AvatarURL),
 	})
+	if err != nil {
+		return nil, mapUserError(err)
+	}
+
+	return user, nil
+}
+
+func (s *service) UpdatePrivacy(ctx context.Context, userID uuid.UUID, request UpdatePrivacyRequest) (*User, error) {
+	user, err := s.repo.UpdatePrivacy(ctx, userID, request.AllowProjectInvites)
 	if err != nil {
 		return nil, mapUserError(err)
 	}

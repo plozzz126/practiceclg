@@ -1,0 +1,249 @@
+2026-06-26 14:05:07.180 +05 [4065] LOG:  starting PostgreSQL 18.4 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 16.1.1 20260430, 64-bit
+2026-06-26 14:05:07.181 +05 [4065] LOG:  could not bind IPv6 address "::1": Address already in use
+2026-06-26 14:05:07.181 +05 [4065] HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+2026-06-26 14:05:07.181 +05 [4065] LOG:  could not bind IPv4 address "127.0.0.1": Address already in use
+2026-06-26 14:05:07.181 +05 [4065] HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+2026-06-26 14:05:07.181 +05 [4065] WARNING:  could not create listen socket for "localhost"
+2026-06-26 14:05:07.181 +05 [4065] FATAL:  could not create any TCP/IP sockets
+2026-06-26 14:05:07.181 +05 [4065] LOG:  database system is shut down
+2026-06-26 14:05:58.265 +05 [4202] LOG:  starting PostgreSQL 18.4 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 16.1.1 20260430, 64-bit
+2026-06-26 14:05:58.266 +05 [4202] LOG:  listening on IPv6 address "::1", port 5433
+2026-06-26 14:05:58.266 +05 [4202] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-06-26 14:05:58.269 +05 [4202] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5433.lock": Permission denied
+2026-06-26 14:05:58.269 +05 [4202] LOG:  database system is shut down
+2026-06-26 14:06:09.810 +05 [4246] LOG:  starting PostgreSQL 18.4 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 16.1.1 20260430, 64-bit
+2026-06-26 14:06:09.811 +05 [4246] LOG:  listening on IPv6 address "::1", port 5433
+2026-06-26 14:06:09.811 +05 [4246] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-06-26 14:06:09.812 +05 [4246] FATAL:  could not create lock file "/home/ploz/Documents/codevs/college/practice111/practiceclg/.runtime/postgres/.s.PGSQL.5433.lock": No such file or directory
+2026-06-26 14:06:09.813 +05 [4246] LOG:  database system is shut down
+2026-06-26 14:06:32.928 +05 [4434] LOG:  starting PostgreSQL 18.4 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 16.1.1 20260430, 64-bit
+2026-06-26 14:06:32.929 +05 [4434] LOG:  listening on IPv6 address "::1", port 5433
+2026-06-26 14:06:32.929 +05 [4434] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-06-26 14:06:32.931 +05 [4434] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-06-26 14:06:32.938 +05 [4440] LOG:  database system was shut down at 2026-06-26 14:03:55 +05
+2026-06-26 14:06:32.943 +05 [4434] LOG:  database system is ready to accept connections
+2026-06-26 14:11:26.016 +05 [4744] ERROR:  permission denied for table users
+2026-06-26 14:11:26.016 +05 [4744] STATEMENT:  
+			SELECT id, email, password_hash
+			FROM users
+			WHERE email = $1
+		
+2026-06-26 14:11:32.991 +05 [4438] LOG:  checkpoint starting: time
+2026-06-26 14:12:20.978 +05 [4746] ERROR:  permission denied for table users
+2026-06-26 14:12:20.978 +05 [4746] STATEMENT:  
+			SELECT id, email, password_hash
+			FROM users
+			WHERE email = $1
+		
+2026-06-26 14:13:16.390 +05 [4438] LOG:  checkpoint complete: wrote 1029 buffers (6.3%), wrote 3 SLRU buffers; 1 WAL file(s) added, 0 removed, 0 recycled; write=103.162 s, sync=0.201 s, total=103.399 s; sync files=356, longest=0.002 s, average=0.001 s; distance=5028 kB, estimate=5028 kB; lsn=0/1C4D120, redo lsn=0/1C4D090
+2026-06-26 14:16:32.490 +05 [4438] LOG:  checkpoint starting: time
+2026-06-26 14:16:35.435 +05 [4438] LOG:  checkpoint complete: wrote 29 buffers (0.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.915 s, sync=0.018 s, total=2.945 s; sync files=25, longest=0.002 s, average=0.001 s; distance=64 kB, estimate=4531 kB; lsn=0/1C60D28, redo lsn=0/1C5D328
+2026-06-26 14:21:32.438 +05 [4438] LOG:  checkpoint starting: time
+2026-06-26 14:21:35.405 +05 [4438] LOG:  checkpoint complete: wrote 29 buffers (0.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=2.941 s, sync=0.015 s, total=2.968 s; sync files=22, longest=0.002 s, average=0.001 s; distance=31 kB, estimate=4081 kB; lsn=0/1C65100, redo lsn=0/1C650A8
+2026-06-26 14:31:32.436 +05 [4438] LOG:  checkpoint starting: time
+2026-06-26 14:31:32.865 +05 [4438] LOG:  checkpoint complete: wrote 4 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.405 s, sync=0.009 s, total=0.429 s; sync files=5, longest=0.006 s, average=0.002 s; distance=5 kB, estimate=3674 kB; lsn=0/1C665F8, redo lsn=0/1C665A0
+2026-06-26 14:41:32.980 +05 [4438] LOG:  checkpoint starting: time
+2026-06-26 14:41:33.301 +05 [4438] LOG:  checkpoint complete: wrote 3 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.303 s, sync=0.009 s, total=0.321 s; sync files=4, longest=0.006 s, average=0.002 s; distance=1 kB, estimate=3306 kB; lsn=0/1C66DA0, redo lsn=0/1C66D48
+2026-06-26 14:46:32.401 +05 [4438] LOG:  checkpoint starting: time
+2026-06-26 14:46:41.642 +05 [4438] LOG:  checkpoint complete: wrote 91 buffers (0.6%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=9.162 s, sync=0.045 s, total=9.241 s; sync files=67, longest=0.004 s, average=0.001 s; distance=312 kB, estimate=3007 kB; lsn=0/1CB6020, redo lsn=0/1CB4F60
+2026-06-26 14:51:32.660 +05 [4438] LOG:  checkpoint starting: time
+2026-06-26 14:51:33.281 +05 [4438] LOG:  checkpoint complete: wrote 6 buffers (0.0%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.604 s, sync=0.009 s, total=0.622 s; sync files=7, longest=0.005 s, average=0.002 s; distance=9 kB, estimate=2707 kB; lsn=0/1CB73C8, redo lsn=0/1CB7370
+2026-06-26 14:56:32.377 +05 [4438] LOG:  checkpoint starting: time
+2026-06-26 14:56:33.840 +05 [4438] LOG:  checkpoint complete: wrote 14 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=1.413 s, sync=0.013 s, total=1.464 s; sync files=15, longest=0.003 s, average=0.001 s; distance=12 kB, estimate=2438 kB; lsn=0/1CBA3F8, redo lsn=0/1CBA3A0
+2026-06-26 15:01:32.889 +05 [4438] LOG:  checkpoint starting: time
+2026-06-26 15:01:34.325 +05 [4438] LOG:  checkpoint complete: wrote 14 buffers (0.1%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=1.412 s, sync=0.011 s, total=1.437 s; sync files=15, longest=0.003 s, average=0.001 s; distance=11 kB, estimate=2195 kB; lsn=0/1CBD008, redo lsn=0/1CBCFB0
+2026-06-26 15:05:21.229 +05 [4434] LOG:  received smart shutdown request
+2026-06-26 15:05:21.234 +05 [4434] LOG:  background worker "logical replication launcher" (PID 4443) exited with exit code 1
+2026-06-26 15:05:21.234 +05 [4438] LOG:  shutting down
+2026-06-26 15:05:21.235 +05 [4438] LOG:  checkpoint starting: shutdown immediate
+2026-06-26 15:05:21.243 +05 [4438] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.009 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=1975 kB; lsn=0/1CBD0B8, redo lsn=0/1CBD0B8
+2026-06-26 15:05:21.252 +05 [4434] LOG:  database system is shut down
+2026-06-27 21:37:30.304 +05 [4431] LOG:  starting PostgreSQL 18.4 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 16.1.1 20260430, 64-bit
+2026-06-27 21:37:30.305 +05 [4431] LOG:  listening on IPv6 address "::1", port 5433
+2026-06-27 21:37:30.306 +05 [4431] LOG:  listening on IPv4 address "127.0.0.1", port 5433
+2026-06-27 21:37:30.307 +05 [4431] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5433"
+2026-06-27 21:37:30.315 +05 [4438] LOG:  database system was shut down at 2026-06-26 15:05:21 +05
+2026-06-27 21:37:30.315 +05 [4439] FATAL:  the database system is starting up
+2026-06-27 21:37:30.321 +05 [4431] LOG:  database system is ready to accept connections
+2026-06-27 21:37:36.800 +05 [4447] FATAL:  database "ploz" does not exist
+2026-06-27 21:42:30.413 +05 [4436] LOG:  checkpoint starting: time
+2026-06-27 21:42:40.475 +05 [4436] LOG:  checkpoint complete: wrote 99 buffers (0.6%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=10.002 s, sync=0.046 s, total=10.062 s; sync files=70, longest=0.005 s, average=0.001 s; distance=394 kB, estimate=394 kB; lsn=0/1D1FBB0, redo lsn=0/1D1FB20
+2026-06-27 22:01:34.156 +05 [8455] FATAL:  database "ploz" does not exist
+2026-06-27 22:01:48.166 +05 [8518] FATAL:  role "postgres" does not exist
+2026-06-27 22:01:53.193 +05 [8550] ERROR:  must be owner of table users
+2026-06-27 22:01:53.193 +05 [8550] STATEMENT:  ALTER TABLE users
+	  ADD COLUMN allow_project_invites boolean NOT NULL DEFAULT true;
+2026-06-27 22:01:53.200 +05 [8550] ERROR:  permission denied for table projects
+2026-06-27 22:01:53.200 +05 [8550] STATEMENT:  CREATE TABLE project_invitations (
+	  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	  project_id uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+	  sender_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	  recipient_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	  message text,
+	  status request_status NOT NULL DEFAULT 'pending',
+	  created_at timestamptz NOT NULL DEFAULT now(),
+	  decided_at timestamptz,
+	  UNIQUE (project_id, recipient_id),
+	  CHECK (sender_id <> recipient_id)
+	);
+2026-06-27 22:01:53.201 +05 [8550] ERROR:  relation "project_invitations" does not exist
+2026-06-27 22:01:53.201 +05 [8550] STATEMENT:  CREATE INDEX idx_project_invitations_project_status ON project_invitations (project_id, status, created_at DESC);
+2026-06-27 22:01:53.202 +05 [8550] ERROR:  relation "project_invitations" does not exist
+2026-06-27 22:01:53.202 +05 [8550] STATEMENT:  CREATE INDEX idx_project_invitations_recipient_status ON project_invitations (recipient_id, status, created_at DESC);
+2026-06-27 22:02:30.755 +05 [4436] LOG:  checkpoint starting: time
+2026-06-27 22:02:36.427 +05 [4436] LOG:  checkpoint complete: wrote 56 buffers (0.3%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=5.631 s, sync=0.030 s, total=5.673 s; sync files=49, longest=0.002 s, average=0.001 s; distance=317 kB, estimate=386 kB; lsn=0/1D6F1A0, redo lsn=0/1D6F110
+2026-06-27 22:07:30.528 +05 [4436] LOG:  checkpoint starting: time
+2026-06-27 22:07:34.617 +05 [4436] LOG:  checkpoint complete: wrote 40 buffers (0.2%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=4.045 s, sync=0.030 s, total=4.090 s; sync files=34, longest=0.007 s, average=0.001 s; distance=65 kB, estimate=354 kB; lsn=0/1D7F8F8, redo lsn=0/1D7F8A0
+2026-06-27 22:17:30.787 +05 [4436] LOG:  checkpoint starting: time
+2026-06-27 22:17:35.234 +05 [4436] LOG:  checkpoint complete: wrote 44 buffers (0.3%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=4.415 s, sync=0.025 s, total=4.448 s; sync files=43, longest=0.001 s, average=0.001 s; distance=52 kB, estimate=324 kB; lsn=0/1D8CB40, redo lsn=0/1D8CAE8
+2026-06-27 22:23:43.176 +05 [20184] ERROR:  type "project_status" already exists
+2026-06-27 22:23:43.176 +05 [20184] STATEMENT:  CREATE EXTENSION IF NOT EXISTS pgcrypto;
+	
+	CREATE TYPE project_status AS ENUM ('draft', 'open', 'closed', 'archived');
+	CREATE TYPE request_status AS ENUM ('pending', 'accepted', 'rejected');
+	CREATE TYPE member_role AS ENUM ('owner', 'member');
+	
+	CREATE TABLE users (
+	  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	  email varchar(255) NOT NULL UNIQUE,
+	  password_hash text NOT NULL,
+	  full_name varchar(160) NOT NULL,
+	  university varchar(180),
+	  course integer CHECK (course BETWEEN 1 AND 8),
+	  bio text,
+	  avatar_url text,
+	  rating numeric(3, 2) NOT NULL DEFAULT 0 CHECK (rating >= 0 AND rating <= 5),
+	  created_at timestamptz NOT NULL DEFAULT now(),
+	  updated_at timestamptz NOT NULL DEFAULT now()
+	);
+	
+	CREATE TABLE refresh_tokens (
+	  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	  token_hash text NOT NULL,
+	  expires_at timestamptz NOT NULL,
+	  revoked_at timestamptz,
+	  created_at timestamptz NOT NULL DEFAULT now()
+	);
+	
+	CREATE TABLE skills (
+	  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	  name varchar(80) NOT NULL UNIQUE
+	);
+	
+	CREATE TABLE user_skills (
+	  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	  skill_id uuid NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+	  PRIMARY KEY (user_id, skill_id)
+	);
+	
+	CREATE TABLE projects (
+	  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	  owner_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	  title varchar(160) NOT NULL,
+	  description text NOT NULL,
+	  deadline date,
+	  status project_status NOT NULL DEFAULT 'open',
+	  direction varchar(40) NOT NULL DEFAULT 'web',
+	  team_size integer NOT NULL DEFAULT 4 CHECK (team_size BETWEEN 1 AND 12),
+	  required_roles text[] NOT NULL DEFAULT '{}'::text[],
+	  created_at timestamptz NOT NULL DEFAULT now(),
+	  updated_at timestamptz NOT NULL DEFAULT now()
+	);
+	
+	CREATE TABLE project_required_skills (
+	  project_id uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+	  skill_id uuid NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+	  PRIMARY KEY (project_id, skill_id)
+	);
+	
+	CREATE TABLE project_members (
+	  project_id uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+	  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	  role member_role NOT NULL DEFAULT 'member',
+	  joined_at timestamptz NOT NULL DEFAULT now(),
+	  PRIMARY KEY (project_id, user_id)
+	);
+	
+	CREATE TABLE join_requests (
+	  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	  project_id uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+	  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	  message text,
+	  status request_status NOT NULL DEFAULT 'pending',
+	  created_at timestamptz NOT NULL DEFAULT now(),
+	  decided_at timestamptz,
+	  UNIQUE (project_id, user_id)
+	);
+	
+	CREATE TABLE messages (
+	  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	  project_id uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+	  sender_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	  body text NOT NULL CHECK (length(trim(body)) > 0),
+	  created_at timestamptz NOT NULL DEFAULT now()
+	);
+	
+	CREATE INDEX idx_users_university_course ON users (university, course);
+	CREATE INDEX idx_projects_status_deadline ON projects (status, deadline);
+	CREATE INDEX idx_projects_direction ON projects (direction);
+	CREATE INDEX idx_projects_title_search ON projects USING gin (to_tsvector('simple', title));
+	CREATE INDEX idx_join_requests_user_status ON join_requests (user_id, status);
+	CREATE INDEX idx_messages_project_created ON messages (project_id, created_at);
+	
+	INSERT INTO skills (name) VALUES
+	  ('React'),
+	  ('TypeScript'),
+	  ('JavaScript'),
+	  ('Next.js'),
+	  ('Vue'),
+	  ('Angular'),
+	  ('Node.js'),
+	  ('NestJS'),
+	  ('Express'),
+	  ('Go'),
+	  ('Python'),
+	  ('Django'),
+	  ('FastAPI'),
+	  ('Java'),
+	  ('Spring Boot'),
+	  ('C#'),
+	  ('ASP.NET'),
+	  ('C++'),
+	  ('Rust'),
+	  ('PostgreSQL'),
+	  ('MySQL'),
+	  ('MongoDB'),
+	  ('Redis'),
+	  ('Docker'),
+	  ('Kubernetes'),
+	  ('AWS'),
+	  ('Git'),
+	  ('GitHub Actions'),
+	  ('Figma'),
+	  ('UI/UX'),
+	  ('Tailwind CSS'),
+	  ('React Native'),
+	  ('Flutter'),
+	  ('Swift'),
+	  ('Kotlin'),
+	  ('TensorFlow'),
+	  ('PyTorch'),
+	  ('Data Science'),
+	  ('Cybersecurity'),
+	  ('Linux'),
+	  ('SIEM'),
+	  ('Burp Suite'),
+	  ('CTF'),
+	  ('Blockchain'),
+	  ('Solidity')
+	ON CONFLICT (name) DO NOTHING;
+	
+2026-06-27 22:27:30.305 +05 [4436] LOG:  checkpoint starting: time
+2026-06-27 22:27:37.944 +05 [4436] LOG:  checkpoint complete: wrote 75 buffers (0.5%), wrote 1 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=7.564 s, sync=0.041 s, total=7.639 s; sync files=68, longest=0.002 s, average=0.001 s; distance=248 kB, estimate=316 kB; lsn=0/1DCAE70, redo lsn=0/1DCADE0
+2026-06-28 01:24:39.196 +05 [4431] LOG:  received smart shutdown request
+2026-06-28 01:24:39.198 +05 [4431] LOG:  background worker "logical replication launcher" (PID 4442) exited with exit code 1
+2026-06-28 01:24:39.199 +05 [4436] LOG:  shutting down
+2026-06-28 01:24:39.200 +05 [4436] LOG:  checkpoint starting: shutdown immediate
+2026-06-28 01:24:39.211 +05 [4436] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.001 s, total=0.013 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=285 kB; lsn=0/1DCAF20, redo lsn=0/1DCAF20
+2026-06-28 01:24:39.227 +05 [4431] LOG:  database system is shut down

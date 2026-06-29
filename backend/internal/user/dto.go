@@ -1,4 +1,4 @@
-﻿package user
+package user
 
 import (
 	"time"
@@ -27,22 +27,27 @@ type UpdateProfileRequest struct {
 	AvatarURL  *string `json:"avatar_url" validate:"omitempty,url,max=1000"`
 }
 
+type UpdatePrivacyRequest struct {
+	AllowProjectInvites bool `json:"allow_project_invites"`
+}
+
 type UpdateSkillsRequest struct {
 	SkillIDs []string `json:"skill_ids" validate:"required,max=20,dive,uuid"`
 }
 
 type CurrentUserResponse struct {
-	ID         uuid.UUID     `json:"id"`
-	Email      string        `json:"email"`
-	FullName   string        `json:"full_name"`
-	University *string       `json:"university,omitempty"`
-	Course     *int          `json:"course,omitempty"`
-	Bio        *string       `json:"bio,omitempty"`
-	AvatarURL  *string       `json:"avatar_url,omitempty"`
-	Rating     float64       `json:"rating"`
-	Skills     []skill.Skill `json:"skills"`
-	CreatedAt  time.Time     `json:"created_at"`
-	UpdatedAt  time.Time     `json:"updated_at"`
+	ID                  uuid.UUID     `json:"id"`
+	Email               string        `json:"email"`
+	FullName            string        `json:"full_name"`
+	University          *string       `json:"university,omitempty"`
+	Course              *int          `json:"course,omitempty"`
+	Bio                 *string       `json:"bio,omitempty"`
+	AvatarURL           *string       `json:"avatar_url,omitempty"`
+	AllowProjectInvites bool          `json:"allow_project_invites"`
+	Rating              float64       `json:"rating"`
+	Skills              []skill.Skill `json:"skills"`
+	CreatedAt           time.Time     `json:"created_at"`
+	UpdatedAt           time.Time     `json:"updated_at"`
 }
 
 type PublicUserResponse struct {
@@ -63,17 +68,18 @@ type UserListResponse struct {
 
 func ToCurrentUserResponse(user *User) CurrentUserResponse {
 	return CurrentUserResponse{
-		ID:         user.ID,
-		Email:      user.Email,
-		FullName:   user.FullName,
-		University: user.University,
-		Course:     user.Course,
-		Bio:        user.Bio,
-		AvatarURL:  user.AvatarURL,
-		Rating:     user.Rating,
-		Skills:     user.Skills,
-		CreatedAt:  user.CreatedAt,
-		UpdatedAt:  user.UpdatedAt,
+		ID:                  user.ID,
+		Email:               user.Email,
+		FullName:            user.FullName,
+		University:          user.University,
+		Course:              user.Course,
+		Bio:                 user.Bio,
+		AvatarURL:           user.AvatarURL,
+		AllowProjectInvites: user.AllowProjectInvites,
+		Rating:              user.Rating,
+		Skills:              user.Skills,
+		CreatedAt:           user.CreatedAt,
+		UpdatedAt:           user.UpdatedAt,
 	}
 }
 

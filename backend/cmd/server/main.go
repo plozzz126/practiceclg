@@ -1,4 +1,4 @@
-﻿package main
+package main
 
 import (
 	"context"
@@ -52,6 +52,11 @@ func main() {
 	}
 	defer dbPool.Close()
 
+	if err := runMigrations(ctx, dbPool, cfg.DatabaseURL, appLogger); err != nil {
+		appLogger.Error("database migration failed", "error", err.Error())
+		log.Fatal(err)
+	}
+
 	redisClient, err := redispkg.NewClient(ctx, cfg.RedisURL)
 	if err != nil {
 		appLogger.Error("redis connection failed", "error", err.Error())
@@ -79,7 +84,7 @@ func main() {
 	authHandler := auth.NewHandler(authService, appLogger)
 
 	projectRepo := project.NewRepository(dbPool)
-	projectService := project.NewService(projectRepo, skillService)
+	projectService := project.NewService(projectRepo, skillService, userService)
 	projectHandler := project.NewHandler(projectService, appLogger)
 
 	authMiddleware := middleware.NewAuthMiddleware(jwtManager, redisClient)
@@ -87,7 +92,7 @@ func main() {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
-	router.Use(middleware.NewCORSMiddleware(cfg.CORSAllowedOrigins))
+	router.Use(middleware.NewCORSMiddleware(cfg.AppEnv, cfg.CORSAllowedOrigins))
 
 	router.GET("/health", func(c *gin.Context) {
 		shared.RespondSuccess(c, http.StatusOK, gin.H{

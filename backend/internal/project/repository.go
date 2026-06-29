@@ -1,4 +1,4 @@
-﻿package project
+package project
 
 import (
 	"context"
@@ -17,9 +17,34 @@ import (
 type Repository interface {
 	Create(ctx context.Context, params CreateParams) (*Detail, error)
 	List(ctx context.Context, filters Filters) ([]Detail, error)
+	ListOwnedByUser(ctx context.Context, userID uuid.UUID) ([]Detail, error)
+	ListParticipating(ctx context.Context, userID uuid.UUID) ([]Detail, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*Detail, error)
 	Update(ctx context.Context, id uuid.UUID, params UpdateParams) (*Detail, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	IsMember(ctx context.Context, projectID, userID uuid.UUID) (bool, error)
+	ListDocuments(ctx context.Context, projectID uuid.UUID) ([]Document, error)
+	CreateDocument(ctx context.Context, params CreateDocumentParams) (*Document, error)
+	DeleteDocument(ctx context.Context, projectID, documentID uuid.UUID) error
+	ListTasks(ctx context.Context, projectID uuid.UUID) ([]Task, error)
+	CreateTask(ctx context.Context, params CreateTaskParams) (*Task, error)
+	UpdateTask(ctx context.Context, projectID, taskID uuid.UUID, params UpdateTaskParams) (*Task, error)
+	DeleteTask(ctx context.Context, projectID, taskID uuid.UUID) error
+	GetJoinRequestByUser(ctx context.Context, projectID, userID uuid.UUID) (*JoinRequestDetail, error)
+	GetJoinRequestByID(ctx context.Context, projectID, requestID uuid.UUID) (*JoinRequestDetail, error)
+	ListJoinRequests(ctx context.Context, projectID uuid.UUID) ([]JoinRequestDetail, error)
+	SaveJoinRequest(ctx context.Context, params SaveJoinRequestParams) (*JoinRequestDetail, error)
+	ReviewJoinRequest(ctx context.Context, projectID, requestID uuid.UUID, decision string) (*JoinRequestDetail, error)
+	ListInviteCandidates(ctx context.Context, projectID, actorID uuid.UUID, filters InviteCandidateFilters) ([]user.User, error)
+	GetInvitableUser(ctx context.Context, projectID, userID uuid.UUID) (*user.User, error)
+	GetInvitationByID(ctx context.Context, invitationID uuid.UUID) (*Invitation, error)
+	GetInvitationByRecipient(ctx context.Context, projectID, recipientID uuid.UUID) (*Invitation, error)
+	ListProjectInvitations(ctx context.Context, projectID uuid.UUID) ([]InvitationDetail, error)
+	ListUserInvitations(ctx context.Context, recipientID uuid.UUID) ([]InvitationDetail, error)
+	SaveInvitation(ctx context.Context, params SaveInvitationParams) (*InvitationDetail, error)
+	ReviewInvitation(ctx context.Context, invitationID uuid.UUID, decision string) (*InvitationDetail, error)
+	ListMessages(ctx context.Context, projectID uuid.UUID) ([]MessageDetail, error)
+	CreateMessage(ctx context.Context, params CreateMessageParams) (*MessageDetail, error)
 }
 
 type CreateParams struct {
@@ -209,6 +234,25 @@ func (r *repository) List(ctx context.Context, filters Filters) ([]Detail, error
 	return details, nil
 }
 
+func (r *repository) ListOwnedByUser(ctx context.Context, userID uuid.UUID) ([]Detail, error) {
+	return r.listScoped(ctx, `
+		SELECT DISTINCT p.id, p.owner_id, p.title, p.description, p.deadline, p.status, p.direction, p.team_size, p.required_roles, p.created_at, p.updated_at
+		FROM projects p
+		WHERE p.owner_id = $1
+		ORDER BY p.updated_at DESC, p.created_at DESC
+	`, userID)
+}
+
+func (r *repository) ListParticipating(ctx context.Context, userID uuid.UUID) ([]Detail, error) {
+	return r.listScoped(ctx, `
+		SELECT DISTINCT p.id, p.owner_id, p.title, p.description, p.deadline, p.status, p.direction, p.team_size, p.required_roles, p.created_at, p.updated_at
+		FROM projects p
+		INNER JOIN project_members pm ON pm.project_id = p.id
+		WHERE pm.user_id = $1 AND p.owner_id <> $1
+		ORDER BY p.updated_at DESC, p.created_at DESC
+	`, userID)
+}
+
 func (r *repository) GetByID(ctx context.Context, id uuid.UUID) (*Detail, error) {
 	row := r.db.QueryRow(ctx, `
 		SELECT id, owner_id, title, description, deadline, status, direction, team_size, required_roles, created_at, updated_at
@@ -242,6 +286,60 @@ func (r *repository) GetByID(ctx context.Context, id uuid.UUID) (*Detail, error)
 		RequiredSkills:    skillsMap[id],
 		ParticipantsCount: participantsMap[id],
 	}, nil
+}
+
+func (r *repository) listScoped(ctx context.Context, query string, userID uuid.UUID) ([]Detail, error) {
+	rows, err := r.db.Query(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	projects := make([]Project, 0)
+	projectIDs := make([]uuid.UUID, 0)
+	ownerIDs := make([]uuid.UUID, 0)
+
+	for rows.Next() {
+		item, err := scanProject(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		projects = append(projects, item)
+		projectIDs = append(projectIDs, item.ID)
+		ownerIDs = append(ownerIDs, item.OwnerID)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	ownersMap, err := loadOwners(ctx, r.db, ownerIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	skillsMap, err := loadRequiredSkills(ctx, r.db, projectIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	participantsMap, err := loadParticipantCounts(ctx, r.db, projectIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	details := make([]Detail, 0, len(projects))
+	for _, item := range projects {
+		details = append(details, Detail{
+			Project:           item,
+			Owner:             ownersMap[item.OwnerID],
+			RequiredSkills:    skillsMap[item.ID],
+			ParticipantsCount: participantsMap[item.ID],
+		})
+	}
+
+	return details, nil
 }
 
 func (r *repository) Update(ctx context.Context, id uuid.UUID, params UpdateParams) (*Detail, error) {
@@ -439,7 +537,7 @@ func loadOwners(ctx context.Context, q dbQuerier, userIDs []uuid.UUID) (map[uuid
 	}
 
 	rows, err := q.Query(ctx, `
-		SELECT id, email, full_name, university, course, bio, avatar_url, rating, created_at, updated_at
+		SELECT id, email, full_name, university, course, bio, avatar_url, allow_project_invites, rating, created_at, updated_at
 		FROM users
 		WHERE id = ANY($1::uuid[])
 	`, stringIDs)
@@ -459,6 +557,7 @@ func loadOwners(ctx context.Context, q dbQuerier, userIDs []uuid.UUID) (map[uuid
 			&item.Course,
 			&item.Bio,
 			&item.AvatarURL,
+			&item.AllowProjectInvites,
 			&item.Rating,
 			&item.CreatedAt,
 			&item.UpdatedAt,

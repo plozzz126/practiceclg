@@ -9,8 +9,11 @@ import {
   CheckCircle2,
   ClipboardList,
   Clock3,
+  FileText,
   MessageSquareText,
+  ExternalLink,
   Pencil,
+  Plus,
   Send,
   ShieldCheck,
   Target,
@@ -48,76 +51,10 @@ import { formatDate, formatRating, formatRelativeDate } from "@/lib/utils/format
 import { getApiErrorMessage, getInitials } from "@/lib/utils/helpers";
 import { useUserStore } from "@/store/user-store";
 import type { ProjectFormValues } from "@/lib/validators/project";
+import type { ProjectJoinRequest, ProjectTask } from "@/types/project";
+import { ProjectInviteDialog } from "@/features/projects/components/project-invite-dialog";
 
-type Decision = "pending" | "accepted" | "rejected";
-
-const demoApplications = [
-  {
-    id: "aidana",
-    name: "Aidana Kim",
-    role: "Frontend",
-    university: "Astana IT University",
-    course: 3,
-    rating: 4.8,
-    skills: ["React", "TypeScript", "UI/UX", "Figma"],
-    message: "Могу взять фронтенд, форму заявки и все состояния интерфейса с нормальной валидацией.",
-    match: 92,
-  },
-  {
-    id: "maksim",
-    name: "Maksim Orlov",
-    role: "Backend",
-    university: "SDU University",
-    course: 4,
-    rating: 4.7,
-    skills: ["Go", "PostgreSQL", "Redis", "Docker"],
-    message: "Уже работал с REST API, миграциями и деплоем на Railway, могу закрыть backend-часть.",
-    match: 88,
-  },
-  {
-    id: "samira",
-    name: "Samira Nur",
-    role: "Designer",
-    university: "KBTU",
-    course: 2,
-    rating: 4.9,
-    skills: ["Figma", "Research", "UI/UX"],
-    message: "Соберу flow, dark/light UI kit и мобильные состояния для презентации и разработки.",
-    match: 84,
-  },
-];
-
-const defaultChat = [
-  {
-    id: "m1",
-    author: "Айдана",
-    body: "Нужно добить дизайн формы заявки и ошибки на всех шагах.",
-    time: "10:12",
-    mine: false,
-  },
-  {
-    id: "m2",
-    author: "Вы",
-    body: "Сегодня подготовлю wireframe, матрицу ролей и список дедлайнов.",
-    time: "10:18",
-    mine: true,
-  },
-];
-
-const taskTemplates = [
-  { id: "brief", title: "Бриф проекта", dueInDays: 1, done: true },
-  { id: "roles", title: "Роли и критерии входа", dueInDays: 2, done: false },
-  { id: "wireframe", title: "Прототип для desktop и mobile", dueInDays: 4, done: false },
-  { id: "deploy", title: "Чеклист деплоя", dueInDays: 7, done: false },
-];
-
-function getTaskDueDate(offset: number) {
-  const date = new Date();
-  date.setDate(date.getDate() + offset);
-  return date.toISOString().slice(0, 10);
-}
-
-function getDecisionLabel(decision: Decision) {
+function getDecisionLabel(decision: "pending" | "accepted" | "rejected") {
   if (decision === "accepted") {
     return "Принят";
   }
@@ -129,23 +66,103 @@ function getDecisionLabel(decision: Decision) {
   return "На рассмотрении";
 }
 
+function getRequestMatchScore(request: ProjectJoinRequest, projectSkillIds: string[]) {
+  if (!projectSkillIds.length) {
+    return 72;
+  }
+
+  const applicantSkillIds = request.user.skills.map((skill) => skill.id);
+  const overlap = projectSkillIds.filter((skillId) => applicantSkillIds.includes(skillId)).length;
+  return Math.max(48, Math.round((overlap / projectSkillIds.length) * 100));
+}
+
+const emptyTaskForm = {
+  title: "",
+  description: "",
+  due_date: "",
+};
+
+const emptyDocumentForm = {
+  title: "",
+  url: "",
+  description: "",
+};
+
 export function ProjectDetailView({ projectId }: { projectId: string }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const currentUser = useUserStore((state) => state.currentUser);
   const [editOpen, setEditOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
+  const [createTaskOpen, setCreateTaskOpen] = useState(false);
+  const [createDocumentOpen, setCreateDocumentOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<ProjectTask | null>(null);
   const [joinMessage, setJoinMessage] = useState("");
   const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState(defaultChat);
-  const [completedTasks, setCompletedTasks] = useState<string[]>(
-    taskTemplates.filter((task) => task.done).map((task) => task.id),
-  );
-  const [decisions, setDecisions] = useState<Record<string, Decision>>({});
+  const [taskForm, setTaskForm] = useState(emptyTaskForm);
+  const [taskEditForm, setTaskEditForm] = useState(emptyTaskForm);
+  const [documentForm, setDocumentForm] = useState(emptyDocumentForm);
 
   const projectQuery = useQuery({
     queryKey: queryKeys.project(projectId),
     queryFn: () => projectsApi.getById(projectId),
+  });
+
+  const project = projectQuery.data;
+  const isOwner = Boolean(currentUser && project && currentUser.id === project.owner_id);
+
+  const tasksQuery = useQuery({
+    queryKey: queryKeys.projectTasks(projectId),
+    queryFn: () => projectsApi.listTasks(projectId),
+  });
+
+  const documentsQuery = useQuery({
+    queryKey: queryKeys.projectDocuments(projectId),
+    queryFn: () => projectsApi.listDocuments(projectId),
+  });
+
+  const myJoinRequestQuery = useQuery({
+    queryKey: queryKeys.projectMyJoinRequest(projectId),
+    queryFn: () => projectsApi.getMyJoinRequest(projectId),
+    enabled: Boolean(currentUser && project && !isOwner),
+    refetchInterval: 5000,
+  });
+
+  const joinRequestsQuery = useQuery({
+    queryKey: queryKeys.projectJoinRequests(projectId),
+    queryFn: () => projectsApi.listJoinRequests(projectId),
+    enabled: isOwner,
+    refetchInterval: 5000,
+  });
+
+  const participatingProjectsQuery = useQuery({
+    queryKey: queryKeys.participatingProjects,
+    queryFn: () => projectsApi.listParticipating(),
+    enabled: Boolean(currentUser && !isOwner),
+    refetchInterval: 5000,
+  });
+
+  const projectInvitationsQuery = useQuery({
+    queryKey: queryKeys.projectInvitations(projectId),
+    queryFn: () => projectsApi.listProjectInvitations(projectId),
+    enabled: isOwner,
+    refetchInterval: 5000,
+  });
+
+  const isParticipant = Boolean(
+    currentUser &&
+      (isOwner ||
+        myJoinRequestQuery.data?.status === "accepted" ||
+        (participatingProjectsQuery.data?.items ?? []).some((item) => item.id === projectId)),
+  );
+
+  const hasChatAccess = Boolean(currentUser && isParticipant);
+
+  const messagesQuery = useQuery({
+    queryKey: queryKeys.projectMessages(projectId),
+    queryFn: () => projectsApi.listMessages(projectId),
+    enabled: hasChatAccess,
+    refetchInterval: 5000,
   });
 
   const updateMutation = useMutation({
@@ -183,8 +200,104 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
     },
   });
 
-  const project = projectQuery.data;
-  const isOwner = Boolean(currentUser && project && currentUser.id === project.owner_id);
+  const createTaskMutation = useMutation({
+    mutationFn: () => projectsApi.createTask(projectId, taskForm),
+    onSuccess: () => {
+      toast.success("Задача добавлена.");
+      setCreateTaskOpen(false);
+      setTaskForm(emptyTaskForm);
+      queryClient.invalidateQueries({ queryKey: queryKeys.projectTasks(projectId) });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Не удалось добавить задачу."));
+    },
+  });
+
+  const createDocumentMutation = useMutation({
+    mutationFn: () => projectsApi.createDocument(projectId, documentForm),
+    onSuccess: () => {
+      toast.success("Ссылка на документацию добавлена.");
+      setCreateDocumentOpen(false);
+      setDocumentForm(emptyDocumentForm);
+      queryClient.invalidateQueries({ queryKey: queryKeys.projectDocuments(projectId) });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Не удалось добавить документацию."));
+    },
+  });
+
+  const deleteDocumentMutation = useMutation({
+    mutationFn: (documentId: string) => projectsApi.deleteDocument(projectId, documentId),
+    onSuccess: () => {
+      toast.success("Документ удален.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.projectDocuments(projectId) });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Не удалось удалить документ."));
+    },
+  });
+
+  const updateTaskMutation = useMutation({
+    mutationFn: ({ taskId, payload }: { taskId: string; payload: Partial<typeof emptyTaskForm> & { done?: boolean } }) =>
+      projectsApi.updateTask(projectId, taskId, payload),
+    onSuccess: () => {
+      toast.success("Задача обновлена.");
+      setEditingTask(null);
+      setTaskEditForm(emptyTaskForm);
+      queryClient.invalidateQueries({ queryKey: queryKeys.projectTasks(projectId) });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Не удалось обновить задачу."));
+    },
+  });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: (taskId: string) => projectsApi.deleteTask(projectId, taskId),
+    onSuccess: () => {
+      toast.success("Задача удалена.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.projectTasks(projectId) });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Не удалось удалить задачу."));
+    },
+  });
+
+  const submitJoinRequestMutation = useMutation({
+    mutationFn: () => projectsApi.submitJoinRequest(projectId, { message: joinMessage.trim() || undefined }),
+    onSuccess: () => {
+      toast.success("Заявка отправлена лидеру проекта.");
+      setJoinOpen(false);
+      setJoinMessage("");
+      queryClient.invalidateQueries({ queryKey: queryKeys.projectMyJoinRequest(projectId) });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Не удалось отправить заявку."));
+    },
+  });
+
+  const reviewJoinRequestMutation = useMutation({
+    mutationFn: ({ requestId, decision }: { requestId: string; decision: "accepted" | "rejected" }) =>
+      projectsApi.reviewJoinRequest(projectId, requestId, { decision }),
+    onSuccess: (_, variables) => {
+      toast.success(variables.decision === "accepted" ? "Кандидат принят в команду." : "Заявка отклонена.");
+      queryClient.invalidateQueries({ queryKey: queryKeys.projectJoinRequests(projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.project(projectId) });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Не удалось обработать заявку."));
+    },
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: () => projectsApi.createMessage(projectId, { body: chatInput.trim() }),
+    onSuccess: () => {
+      setChatInput("");
+      queryClient.invalidateQueries({ queryKey: queryKeys.projectMessages(projectId) });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, "Не удалось отправить сообщение."));
+    },
+  });
 
   const matchScore = useMemo(() => {
     if (!currentUser || !project?.required_skills.length) {
@@ -196,16 +309,23 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
     return Math.max(48, Math.round((overlap / project.required_skills.length) * 100));
   }, [currentUser, project]);
 
-  const tasks = taskTemplates.map((task) => ({
-    ...task,
-    due: getTaskDueDate(task.dueInDays),
-    done: completedTasks.includes(task.id),
-  }));
+  const tasks = tasksQuery.data?.items ?? [];
+  const documents = documentsQuery.data?.items ?? [];
+  const joinRequests = joinRequestsQuery.data?.items ?? [];
+  const projectInvitations = projectInvitationsQuery.data?.items ?? [];
+  const myJoinRequest = myJoinRequestQuery.data;
+  const messages = messagesQuery.data?.items ?? [];
+  const canSubmitJoinRequest = Boolean(
+    currentUser && !isOwner && !isParticipant && myJoinRequest?.status !== "pending" && myJoinRequest?.status !== "accepted",
+  );
 
-  const handleTaskToggle = (taskId: string) => {
-    setCompletedTasks((current) =>
-      current.includes(taskId) ? current.filter((id) => id !== taskId) : [...current, taskId],
-    );
+  const openEditTask = (task: ProjectTask) => {
+    setEditingTask(task);
+    setTaskEditForm({
+      title: task.title,
+      description: task.description ?? "",
+      due_date: task.due_date ?? "",
+    });
   };
 
   const handleSendMessage = () => {
@@ -214,28 +334,7 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
       return;
     }
 
-    setChatMessages((current) => [
-      ...current,
-      {
-        id: `m-${Date.now()}`,
-        author: "Вы",
-        body: trimmed,
-        time: new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }),
-        mine: true,
-      },
-    ]);
-    setChatInput("");
-  };
-
-  const handleJoinSubmit = () => {
-    toast.success("Заявка подготовлена и отправлена лиду проекта.");
-    setJoinOpen(false);
-    setJoinMessage("");
-  };
-
-  const updateDecision = (applicationId: string, decision: Decision) => {
-    setDecisions((current) => ({ ...current, [applicationId]: decision }));
-    toast.success(decision === "accepted" ? "Кандидат принят в команду." : "Кандидат отклонен.");
+    sendMessageMutation.mutate();
   };
 
   if (projectQuery.isError) {
@@ -273,11 +372,92 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
               actions={
                 isOwner ? (
                   <div className="flex flex-wrap items-center gap-3">
+                    <ProjectInviteDialog projectId={projectId} />
+                    <Dialog open={createDocumentOpen} onOpenChange={setCreateDocumentOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="secondary">
+                          <FileText />
+                          Документация
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Добавить ссылку на документацию</DialogTitle>
+                          <DialogDescription>
+                            Быстрый вариант: добавь Google Drive, Notion, GitHub, Figma или любой публичный документ с ТЗ.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4">
+                          <Input
+                            value={documentForm.title}
+                            onChange={(event) =>
+                              setDocumentForm((current) => ({ ...current, title: event.target.value }))
+                            }
+                            placeholder="Например: ТЗ проекта"
+                          />
+                          <Input
+                            value={documentForm.url}
+                            onChange={(event) =>
+                              setDocumentForm((current) => ({ ...current, url: event.target.value }))
+                            }
+                            placeholder="https://drive.google.com/..."
+                          />
+                          <Textarea
+                            value={documentForm.description}
+                            onChange={(event) =>
+                              setDocumentForm((current) => ({ ...current, description: event.target.value }))
+                            }
+                            placeholder="Коротко: что внутри и для кого эта ссылка."
+                          />
+                          <Button onClick={() => createDocumentMutation.mutate()} disabled={createDocumentMutation.isPending}>
+                            Сохранить ссылку
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
+                    <Dialog open={createTaskOpen} onOpenChange={setCreateTaskOpen}>
+                      <DialogTrigger asChild>
+                        <Button>
+                          <Plus />
+                          Добавить задачу
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Новая задача</DialogTitle>
+                          <DialogDescription>Задача сохранится в базе и будет видна всей команде.</DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4">
+                          <Input
+                            value={taskForm.title}
+                            onChange={(event) => setTaskForm((current) => ({ ...current, title: event.target.value }))}
+                            placeholder="Например: Подготовить прототип"
+                          />
+                          <Textarea
+                            value={taskForm.description}
+                            onChange={(event) =>
+                              setTaskForm((current) => ({ ...current, description: event.target.value }))
+                            }
+                            placeholder="Коротко опиши ожидаемый результат."
+                          />
+                          <Input
+                            type="date"
+                            value={taskForm.due_date}
+                            onChange={(event) => setTaskForm((current) => ({ ...current, due_date: event.target.value }))}
+                          />
+                          <Button onClick={() => createTaskMutation.mutate()} disabled={createTaskMutation.isPending}>
+                            Создать задачу
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
                     <Dialog open={editOpen} onOpenChange={setEditOpen}>
                       <DialogTrigger asChild>
                         <Button variant="secondary">
                           <Pencil />
-                          Редактировать
+                          Редактировать проект
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
@@ -318,13 +498,17 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
                     </Button>
                   </div>
                 ) : (
-                  <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
-                    <DialogTrigger asChild>
-                      <Button>
-                        <UserCheck />
-                        Подать заявку
-                      </Button>
-                    </DialogTrigger>
+                    <Dialog open={joinOpen} onOpenChange={setJoinOpen}>
+                      <DialogTrigger asChild>
+                        <Button disabled={!canSubmitJoinRequest}>
+                          <UserCheck />
+                          {currentUser
+                            ? isParticipant
+                              ? "Вы уже в команде"
+                              : "Подать заявку"
+                            : "Войдите, чтобы откликнуться"}
+                        </Button>
+                      </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Заявка в проект</DialogTitle>
@@ -354,7 +538,12 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
                           onChange={(event) => setJoinMessage(event.target.value)}
                           placeholder="Напиши, какую роль можешь закрыть и почему подходишь этой команде."
                         />
-                        <Button onClick={handleJoinSubmit}>Отправить заявку</Button>
+                        <Button
+                          onClick={() => submitJoinRequestMutation.mutate()}
+                          disabled={submitJoinRequestMutation.isPending || !canSubmitJoinRequest}
+                        >
+                          Отправить заявку
+                        </Button>
                       </div>
                     </DialogContent>
                   </Dialog>
@@ -362,10 +551,49 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
               }
             />
 
+            <Dialog open={Boolean(editingTask)} onOpenChange={(open) => !open && setEditingTask(null)}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Редактирование задачи</DialogTitle>
+                  <DialogDescription>Изменения сохранятся для всех участников проекта.</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4">
+                  <Input
+                    value={taskEditForm.title}
+                    onChange={(event) => setTaskEditForm((current) => ({ ...current, title: event.target.value }))}
+                  />
+                  <Textarea
+                    value={taskEditForm.description}
+                    onChange={(event) => setTaskEditForm((current) => ({ ...current, description: event.target.value }))}
+                  />
+                  <Input
+                    type="date"
+                    value={taskEditForm.due_date}
+                    onChange={(event) => setTaskEditForm((current) => ({ ...current, due_date: event.target.value }))}
+                  />
+                  <Button
+                    onClick={() => {
+                      if (!editingTask) {
+                        return;
+                      }
+
+                      updateTaskMutation.mutate({
+                        taskId: editingTask.id,
+                        payload: taskEditForm,
+                      });
+                    }}
+                    disabled={updateTaskMutation.isPending}
+                  >
+                    Сохранить задачу
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <div className="grid gap-4 md:grid-cols-4">
               <Card>
                 <CardContent className="p-5">
-                  <p className="text-sm text-muted-foreground">Дедлайн</p>
+                  <p className="text-sm text-muted-foreground">Дедлайн проекта</p>
                   <p className="mt-2 flex items-center gap-2 font-semibold text-foreground">
                     <CalendarDays className="h-4 w-4 text-tone-primary" />
                     {formatDate(project.deadline)}
@@ -433,6 +661,65 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
                 </Card>
 
                 <Card>
+                  <CardHeader className="flex flex-row items-center justify-between gap-4">
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-tone-primary" />
+                      Документация
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {documents.length ? (
+                      documents.map((document) => (
+                        <div key={document.id} className="rounded-[8px] border border-border bg-muted/45 p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-foreground">{document.title}</p>
+                              {document.description ? (
+                                <p className="mt-1 text-sm leading-6 text-muted-foreground">{document.description}</p>
+                              ) : null}
+                              <p className="mt-2 text-xs text-muted-foreground">Добавлено {formatRelativeDate(document.created_at)}</p>
+                            </div>
+                            <Button asChild size="sm" variant="secondary">
+                              <a href={document.url} target="_blank" rel="noreferrer">
+                                <ExternalLink />
+                                Открыть
+                              </a>
+                            </Button>
+                          </div>
+                          {isOwner ? (
+                            <div className="mt-4 flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => {
+                                  if (window.confirm("Удалить ссылку на документ?")) {
+                                    deleteDocumentMutation.mutate(document.id);
+                                  }
+                                }}
+                                disabled={deleteDocumentMutation.isPending}
+                              >
+                                <Trash2 />
+                                Удалить
+                              </Button>
+                            </div>
+                          ) : null}
+                        </div>
+                      ))
+                    ) : (
+                      <EmptyState
+                        className="min-h-48"
+                        title="Документация пока не добавлена"
+                        description={
+                          isOwner
+                            ? "Добавь ссылку на ТЗ, диск, Figma или Notion, чтобы команда и кандидаты видели условия проекта."
+                            : "Лид проекта еще не прикрепил ссылки на ТЗ или материалы."
+                        }
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <ClipboardList className="h-5 w-5 text-tone-primary" />
@@ -440,27 +727,67 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {tasks.map((task) => (
-                      <button
-                        key={task.id}
-                        type="button"
-                        onClick={() => handleTaskToggle(task.id)}
-                        className="flex w-full items-center justify-between gap-4 rounded-[8px] border border-border bg-muted/45 p-4 text-left transition hover:border-teal-400/40"
-                      >
-                        <span className="flex items-center gap-3">
-                          {task.done ? (
-                            <CheckCircle2 className="h-5 w-5 text-tone-primary" />
-                          ) : (
-                            <Clock3 className="h-5 w-5 text-muted-foreground" />
-                          )}
-                          <span>
-                            <span className="block font-medium text-foreground">{task.title}</span>
-                            <span className="text-sm text-muted-foreground">До {formatDate(task.due)}</span>
-                          </span>
-                        </span>
-                        <Badge variant={task.done ? "default" : "secondary"}>{task.done ? "Готово" : "В работе"}</Badge>
-                      </button>
-                    ))}
+                    {tasks.length ? (
+                      tasks.map((task) => (
+                        <div key={task.id} className="rounded-[8px] border border-border bg-muted/45 p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-3">
+                              {task.done ? (
+                                <CheckCircle2 className="mt-0.5 h-5 w-5 text-tone-primary" />
+                              ) : (
+                                <Clock3 className="mt-0.5 h-5 w-5 text-muted-foreground" />
+                              )}
+                              <div>
+                                <p className="font-medium text-foreground">{task.title}</p>
+                                {task.description ? (
+                                  <p className="mt-1 text-sm leading-6 text-muted-foreground">{task.description}</p>
+                                ) : null}
+                                <p className="mt-2 text-sm text-muted-foreground">
+                                  {task.due_date ? `До ${formatDate(task.due_date)}` : "Без дедлайна"}
+                                </p>
+                              </div>
+                            </div>
+                            <Badge variant={task.done ? "default" : "secondary"}>{task.done ? "Готово" : "В работе"}</Badge>
+                          </div>
+                          {isOwner ? (
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              <Button
+                                size="sm"
+                                variant={task.done ? "secondary" : "default"}
+                                onClick={() => updateTaskMutation.mutate({ taskId: task.id, payload: { done: !task.done } })}
+                                disabled={updateTaskMutation.isPending}
+                              >
+                                <CheckCircle2 />
+                                {task.done ? "Вернуть в работу" : "Отметить готовой"}
+                              </Button>
+                              <Button size="sm" variant="secondary" onClick={() => openEditTask(task)}>
+                                <Pencil />
+                                Изменить
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => {
+                                  if (window.confirm("Удалить задачу?")) {
+                                    deleteTaskMutation.mutate(task.id);
+                                  }
+                                }}
+                                disabled={deleteTaskMutation.isPending}
+                              >
+                                <Trash2 />
+                                Удалить
+                              </Button>
+                            </div>
+                          ) : null}
+                        </div>
+                      ))
+                    ) : (
+                      <EmptyState
+                        className="min-h-48"
+                        title="Задач пока нет"
+                        description={isOwner ? "Добавь первую задачу проекта и назначь ей дедлайн." : "Лид проекта еще не добавил план работ."}
+                      />
+                    )}
                   </CardContent>
                 </Card>
 
@@ -472,38 +799,64 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid gap-3">
-                      {chatMessages.map((message) => (
-                        <div key={message.id} className={message.mine ? "flex justify-end" : "flex justify-start"}>
-                          <div
-                            className={
-                              message.mine
-                                ? "max-w-[82%] rounded-[8px] bg-teal-500 px-4 py-3 text-sm text-white"
-                                : "max-w-[82%] rounded-[8px] bg-muted px-4 py-3 text-sm text-muted-foreground"
-                            }
-                          >
-                            <p className="font-medium">{message.author}</p>
-                            <p className="mt-1 leading-6">{message.body}</p>
-                            <p className="mt-2 text-xs opacity-70">{message.time}</p>
-                          </div>
+                    {hasChatAccess ? (
+                      <>
+                        <div className="grid gap-3">
+                          {messages.length ? (
+                            messages.map((message) => (
+                              <div
+                                key={message.id}
+                                className={message.sender_id === currentUser?.id ? "flex justify-end" : "flex justify-start"}
+                              >
+                                <div
+                                  className={
+                                    message.sender_id === currentUser?.id
+                                      ? "max-w-[82%] rounded-[8px] bg-teal-500 px-4 py-3 text-sm text-white"
+                                      : "max-w-[82%] rounded-[8px] bg-muted px-4 py-3 text-sm text-muted-foreground"
+                                  }
+                                >
+                                  <p className="font-medium">{message.sender.full_name}</p>
+                                  <p className="mt-1 leading-6">{message.body}</p>
+                                  <p className="mt-2 text-xs opacity-70">{formatRelativeDate(message.created_at)}</p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <EmptyState
+                              className="min-h-48"
+                              title="Чат пока пустой"
+                              description="Напиши первое сообщение команде, и оно сохранится в проекте."
+                            />
+                          )}
                         </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Input
-                        value={chatInput}
-                        onChange={(event) => setChatInput(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter") {
-                            handleSendMessage();
-                          }
-                        }}
-                        placeholder="Напишите сообщение команде..."
-                      />
-                      <Button size="icon" onClick={handleSendMessage} aria-label="Отправить сообщение">
-                        <Send />
-                      </Button>
-                    </div>
+                        <div className="flex gap-2">
+                          <Input
+                            value={chatInput}
+                            onChange={(event) => setChatInput(event.target.value)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" && !event.shiftKey) {
+                                event.preventDefault();
+                                handleSendMessage();
+                              }
+                            }}
+                            placeholder="Напишите сообщение команде..."
+                          />
+                          <Button
+                            size="icon"
+                            onClick={handleSendMessage}
+                            aria-label="Отправить сообщение"
+                            disabled={sendMessageMutation.isPending}
+                          >
+                            <Send />
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="rounded-[8px] border border-border bg-muted/45 p-4 text-sm leading-6 text-muted-foreground">
+                        Чат больше не заполнен демо-сообщениями. Он открывается только после принятия в команду, а до этого
+                        здесь ничего не подставляется искусственно.
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -531,78 +884,181 @@ export function ProjectDetailView({ projectId }: { projectId: string }) {
                 </Card>
 
                 {isOwner ? (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <UserCheck className="h-5 w-5 text-tone-primary" />
-                        Заявки в команду
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {demoApplications.map((application) => {
-                        const decision = decisions[application.id] ?? "pending";
-
-                        return (
-                          <div key={application.id} className="rounded-[8px] border border-border bg-muted/45 p-4">
-                            <div className="flex items-start gap-3">
-                              <Avatar className="h-12 w-12">
-                                <AvatarFallback>{getInitials(application.name)}</AvatarFallback>
-                              </Avatar>
-                              <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <p className="font-semibold text-foreground">{application.name}</p>
-                                  <Badge>{application.match}% совпадение</Badge>
-                                  <Badge variant="secondary">{getDecisionLabel(decision)}</Badge>
+                  <>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Users className="h-5 w-5 text-tone-primary" />
+                          Отправленные приглашения
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {projectInvitations.length ? (
+                          projectInvitations.map((invitation) => (
+                            <div key={invitation.id} className="rounded-[8px] border border-border bg-muted/45 p-4">
+                              <div className="flex items-start gap-3">
+                                <Avatar className="h-12 w-12">
+                                  <AvatarFallback>{getInitials(invitation.recipient.full_name)}</AvatarFallback>
+                                </Avatar>
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <p className="font-semibold text-foreground">{invitation.recipient.full_name}</p>
+                                    <Badge variant="secondary">{getDecisionLabel(invitation.status)}</Badge>
+                                  </div>
+                                  <p className="mt-1 text-sm text-muted-foreground">
+                                    {invitation.recipient.university || "Университет не указан"} - Курс{" "}
+                                    {invitation.recipient.course ?? "не указан"} - Рейтинг {formatRating(invitation.recipient.rating)}
+                                  </p>
                                 </div>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                  {application.role} - {application.university} - Курс {application.course} - Рейтинг{" "}
-                                  {formatRating(application.rating)}
-                                </p>
                               </div>
+                              <div className="mt-3 flex flex-wrap gap-2">
+                                {invitation.recipient.skills.map((skill) => (
+                                  <Badge key={skill.id} variant="outline">
+                                    {skill.name}
+                                  </Badge>
+                                ))}
+                              </div>
+                              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                                {invitation.message || "Приглашение отправлено без дополнительного комментария."}
+                              </p>
                             </div>
-                            <p className="mt-3 text-sm leading-6 text-muted-foreground">{application.message}</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              {application.skills.map((skill) => (
-                                <Badge key={skill} variant="outline">
-                                  {skill}
-                                </Badge>
-                              ))}
-                            </div>
-                            <div className="mt-4 flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => updateDecision(application.id, "accepted")}
-                                disabled={decision === "accepted"}
-                              >
-                                <CheckCircle2 />
-                                Принять
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                onClick={() => updateDecision(application.id, "rejected")}
-                                disabled={decision === "rejected"}
-                              >
-                                <XCircle />
-                                Отклонить
-                              </Button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </CardContent>
-                  </Card>
+                          ))
+                        ) : (
+                          <EmptyState
+                            className="min-h-40"
+                            title="Приглашений пока нет"
+                            description="Найди кандидатов через поиск и отправь им приглашение прямо из проекта."
+                          />
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <UserCheck className="h-5 w-5 text-tone-primary" />
+                          Заявки в команду
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {joinRequests.length ? (
+                          joinRequests.map((application) => {
+                            const decision = application.status;
+                            const match = getRequestMatchScore(
+                              application,
+                              project.required_skills.map((skill) => skill.id),
+                            );
+
+                            return (
+                              <div key={application.id} className="rounded-[8px] border border-border bg-muted/45 p-4">
+                                <div className="flex items-start gap-3">
+                                  <Avatar className="h-12 w-12">
+                                    <AvatarFallback>{getInitials(application.user.full_name)}</AvatarFallback>
+                                  </Avatar>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <p className="font-semibold text-foreground">{application.user.full_name}</p>
+                                      <Badge>{match}% совпадение</Badge>
+                                      <Badge variant="secondary">{getDecisionLabel(decision)}</Badge>
+                                    </div>
+                                    <p className="mt-1 text-sm text-muted-foreground">
+                                      {application.user.university || "Университет не указан"} - Курс{" "}
+                                      {application.user.course ?? "не указан"} - Рейтинг {formatRating(application.user.rating)}
+                                    </p>
+                                  </div>
+                                </div>
+                                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                                  {application.message || "Пользователь отправил заявку без дополнительного комментария."}
+                                </p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {application.user.skills.map((skill) => (
+                                    <Badge key={skill.id} variant="outline">
+                                      {skill.name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                {decision === "pending" ? (
+                                  <div className="mt-4 flex gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() =>
+                                        reviewJoinRequestMutation.mutate({
+                                          requestId: application.id,
+                                          decision: "accepted",
+                                        })
+                                      }
+                                      disabled={reviewJoinRequestMutation.isPending}
+                                    >
+                                      <CheckCircle2 />
+                                      Принять
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      onClick={() =>
+                                        reviewJoinRequestMutation.mutate({
+                                          requestId: application.id,
+                                          decision: "rejected",
+                                        })
+                                      }
+                                      disabled={reviewJoinRequestMutation.isPending}
+                                    >
+                                      <XCircle />
+                                      Отклонить
+                                    </Button>
+                                  </div>
+                                ) : null}
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <EmptyState
+                            className="min-h-48"
+                            title="Заявок пока нет"
+                            description="Когда кто-то подаст реальную заявку, она появится здесь вместо демо-карточек."
+                          />
+                        )}
+                      </CardContent>
+                    </Card>
+                  </>
                 ) : (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Критерии принятия</CardTitle>
+                      <CardTitle>Статус заявки</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-                      <p>Лид оценивает каждую заявку по навыкам, роли, рейтингу, курсу и мотивации.</p>
-                      <p>Твой публичный профиль отправляется вместе с заявкой, поэтому навыки и био должны быть актуальными.</p>
-                      <div className="tone-primary-soft rounded-[8px] border p-4">
-                        <p className="font-medium">Текущее совпадение: {matchScore}%</p>
-                      </div>
+                      {isParticipant ? (
+                        <>
+                          <p>
+                            Статус: <span className="font-medium text-foreground">Вы уже в команде проекта</span>
+                          </p>
+                          <p>
+                            Доступ к чату и рабочему пространству уже открыт. Кнопка подачи заявки скрыта, потому что повторно
+                            вступать в этот проект не нужно.
+                          </p>
+                          <div className="tone-primary-soft rounded-[8px] border p-4">
+                            <p className="font-medium">Текущее совпадение: {matchScore}%</p>
+                          </div>
+                        </>
+                      ) : myJoinRequest ? (
+                        <>
+                          <p>
+                            Текущий статус: <span className="font-medium text-foreground">{getDecisionLabel(myJoinRequest.status)}</span>
+                          </p>
+                          <p>{myJoinRequest.message || "Заявка была отправлена без дополнительного комментария."}</p>
+                          <div className="tone-primary-soft rounded-[8px] border p-4">
+                            <p className="font-medium">Текущее совпадение: {matchScore}%</p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p>Лид оценивает каждую заявку по навыкам, роли, рейтингу, курсу и мотивации.</p>
+                          <p>Твой публичный профиль отправляется вместе с заявкой, поэтому навыки и био должны быть актуальными.</p>
+                          <div className="tone-primary-soft rounded-[8px] border p-4">
+                            <p className="font-medium">Текущее совпадение: {matchScore}%</p>
+                          </div>
+                        </>
+                      )}
                     </CardContent>
                   </Card>
                 )}
